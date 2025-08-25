@@ -18,7 +18,7 @@ import {
   CogIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Header() {
+export default function Header({ className }: { className?: string }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
@@ -41,26 +41,28 @@ export default function Header() {
   };
 
   return (
-    <div className="sticky top-0 z-50 flex h-16 w-full items-center gap-x-4 border-b border-gray-700/50 bg-gray-900/80 backdrop-blur-md px-4 sm:px-6 lg:px-8 shadow-sm">
+    <header
+      className={`sticky top-0 z-40 flex h-16 items-center gap-x-4 border-b border-gray-700 bg-gray-900/80 backdrop-blur-sm px-3 sm:px-4 lg:px-6 shadow-sm ${className}`}
+    >
       {/* Logo */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-          <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
+          <ArrowTrendingUpIcon className="h-4 w-4 text-gray-100" />
         </div>
-        <span className="text-lg font-semibold text-gray-100">DomaTrade</span>
+        <span className="text-base sm:text-lg font-semibold text-gray-100">DomaTrade</span>
       </div>
 
       {/* Hamburger Menu Button (Mobile Only) */}
       <button
         type="button"
-        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-2 transition-colors duration-200"
+        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-2 transition-colors duration-200"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         aria-label="Toggle navigation menu"
       >
         {isMobileMenuOpen ? (
-          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+          <XMarkIcon className="h-4 w-4" aria-hidden="true" />
         ) : (
-          <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+          <Bars3Icon className="h-4 w-4" aria-hidden="true" />
         )}
       </button>
 
@@ -68,7 +70,7 @@ export default function Header() {
       <div className="flex-1" />
 
       {/* Connect Wallet Button */}
-      <div className="flex items-center gap-x-4 lg:gap-x-6">
+      <div className="flex items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
         <ConnectButton
           showBalance={false}
           chainStatus="icon"
@@ -76,28 +78,28 @@ export default function Header() {
             smallScreen: 'avatar',
             largeScreen: 'full',
           }}
-
+          label="Connect Wallet"
         />
       </div>
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/95 backdrop-blur-md transform ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/20 backdrop-blur-sm transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:hidden transition-transform duration-300 ease-in-out border-r border-gray-700/50`}
+        } lg:hidden transition-transform duration-300 ease-in-out border-r border-gray-700`}
       >
-        <div className="flex h-16 items-center justify-between px-4 border-b border-gray-700/50">
-          <span className="text-lg font-semibold text-gray-100">Menu</span>
+        <div className="flex h-16 items-center justify-between px-3 sm:px-4 border-b border-gray-700">
+          <span className="text-base sm:text-lg font-semibold text-gray-100">Menu</span>
           <button
             type="button"
-            className="text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-2"
+            className="text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-2"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close navigation menu"
           >
-            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-        <nav className="flex flex-col p-4 space-y-2">
+        <nav className="flex flex-col p-3 sm:p-4 space-y-2">
           {menuItems.map((item) => (
             <Link
               key={item.id}
@@ -106,14 +108,14 @@ export default function Header() {
                 e.preventDefault();
                 handleNavigation(item.href);
               }}
-              className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-indigo-600/20 hover:text-indigo-400 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-indigo-600/20 hover:text-indigo-400 rounded-lg transition-all duration-200 text-xs sm:text-sm"
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              <span className="text-sm font-medium">{item.label}</span>
+              <item.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="font-medium">{item.label}</span>
             </Link>
           ))}
         </nav>
       </div>
-    </div>
+    </header>
   );
 }
