@@ -1,18 +1,74 @@
 "use client";
 
+import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Bars3Icon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  HomeIcon,
+  ArrowTrendingUpIcon,
+  ChartBarIcon,
+  ChartPieIcon,
+  TrophyIcon,
+  ClockIcon,
+  WalletIcon,
+  BookOpenIcon,
+  ShieldCheckIcon,
+  CogIcon,
+} from '@heroicons/react/24/outline';
 
 export default function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: HomeIcon, href: '/' },
+    { id: 'markets', label: 'Markets', icon: ArrowTrendingUpIcon, href: '/markets' },
+    { id: 'positions', label: 'Positions', icon: ChartBarIcon, href: '/positions' },
+    { id: 'etf-options', label: 'ETF Options', icon: ChartPieIcon, href: '/etf-options' },
+    { id: 'competition', label: 'Competition', icon: TrophyIcon, href: '/competition' },
+    { id: 'activity', label: 'Activity', icon: ClockIcon, href: '/activity' },
+    { id: 'portfolio', label: 'Portfolio', icon: WalletIcon, href: '/vault' },
+    { id: 'orders', label: 'Orders', icon: BookOpenIcon, href: '/trade' },
+    { id: 'governance', label: 'Governance', icon: ShieldCheckIcon, href: '/admin' },
+    { id: 'settings', label: 'Settings', icon: CogIcon, href: '/settings' },
+  ];
+
+  const handleNavigation = (href: string) => {
+    router.push(href);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className="sticky top-0 z-40 flex h-16 items-center gap-x-4 border-b border-gray-700 bg-gray-900/80 backdrop-blur-sm px-4 sm:px-6 lg:px-8 shadow-sm">
+    <div className="sticky top-0 z-50 flex h-16 w-full items-center gap-x-4 border-b border-gray-700/50 bg-gray-900/80 backdrop-blur-md px-4 sm:px-6 lg:px-8 shadow-sm">
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
+        </div>
+        <span className="text-lg font-semibold text-gray-100">DomaTrade</span>
+      </div>
+
+      {/* Hamburger Menu Button (Mobile Only) */}
       <button
         type="button"
-        className="lg:hidden text-gray-400 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-md p-2"
+        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-2 transition-colors duration-200"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label="Toggle navigation menu"
       >
-        <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+        {isMobileMenuOpen ? (
+          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+        ) : (
+          <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+        )}
       </button>
-      <div className="flex flex-1 items-center justify-end gap-x-4 lg:gap-x-6">
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* Connect Wallet Button */}
+      <div className="flex items-center gap-x-4 lg:gap-x-6">
         <ConnectButton
           showBalance={false}
           chainStatus="icon"
@@ -20,8 +76,43 @@ export default function Header() {
             smallScreen: 'avatar',
             largeScreen: 'full',
           }}
-          label="Connect Wallet"
+
         />
+      </div>
+
+      {/* Mobile Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800/95 backdrop-blur-md transform ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:hidden transition-transform duration-300 ease-in-out border-r border-gray-700/50`}
+      >
+        <div className="flex h-16 items-center justify-between px-4 border-b border-gray-700/50">
+          <span className="text-lg font-semibold text-gray-100">Menu</span>
+          <button
+            type="button"
+            className="text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-2"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          >
+            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+          </button>
+        </div>
+        <nav className="flex flex-col p-4 space-y-2">
+          {menuItems.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation(item.href);
+              }}
+              className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-indigo-600/20 hover:text-indigo-400 rounded-lg transition-colors duration-200"
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="text-sm font-medium">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
       </div>
     </div>
   );

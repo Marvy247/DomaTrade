@@ -20,39 +20,52 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full bg-gray-900">
-      <body className={`${inter.className} h-full antialiased bg-gray-900 text-gray-100`}>
+    <html lang="en" className="h-full bg-gray-950">
+      <body className={`${inter.className} h-full antialiased text-gray-100 bg-gradient-to-br from-gray-950 to-gray-900`}>
         <Providers>
-          <div className="flex h-full">
-            <div className="hidden lg:flex lg:w-72 lg:flex-col lg:inset-y-0 lg:z-50 bg-gray-800/20 shadow-lg border-r border-gray-700">
+          <div className="flex h-full min-h-screen">
+            {/* Sidebar: Fixed on left for large screens, hidden on mobile */}
+            <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 bg-gray-800/50 backdrop-blur-md border-r border-gray-700/50 transition-all duration-300">
               <Sidebar />
             </div>
-            <div className="flex-1 flex flex-col lg:pl-72">
-              <Header />
-              <main className="flex-1 py-8 bg-gray-900">
-                <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col lg:ml-64">
+              {/* Header: Sticky and full-width */}
+              <Header className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-700/50" />
+              {/* Main Content: Full-width */}
+              <main className="flex-1 py-6 bg-transparent">
+                <div className="px-4 sm:px-6 lg:px-6">
+                  {children}
+                </div>
               </main>
             </div>
           </div>
-          <Toaster position="top-right" toastOptions={{
-            style: {
-              background: '#1F2937',
-              color: '#F3F4F6',
-              border: '1px solid rgba(79, 70, 229, 0.2)',
-            },
-            success: {
-              iconTheme: {
-                primary: '#5EEAD4',
-                secondary: '#1F2937',
+          {/* Toaster */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#1E293B',
+                color: '#F9FAFB',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
               },
-            },
-            error: {
-              iconTheme: {
-                primary: '#FBBF24',
-                secondary: '#1F2937',
+              success: {
+                iconTheme: {
+                  primary: '#34D399',
+                  secondary: '#1E293B',
+                },
               },
-            },
-          }} />
+              error: {
+                iconTheme: {
+                  primary: '#F87171',
+                  secondary: '#1E293B',
+                },
+              },
+            }}
+          />
         </Providers>
       </body>
     </html>

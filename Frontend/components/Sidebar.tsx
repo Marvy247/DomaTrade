@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { 
-  ChartBarIcon, 
-  ClockIcon, 
-  UserIcon, 
+import {
+  ChartBarIcon,
+  ClockIcon,
+  UserIcon,
   CogIcon,
   HomeIcon,
   ArrowTrendingUpIcon,
@@ -14,7 +14,7 @@ import {
   BookOpenIcon,
   ShieldCheckIcon,
   TrophyIcon,
-  ChartPieIcon
+  ChartPieIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -37,10 +37,9 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     { id: 'portfolio', label: 'Portfolio', icon: WalletIcon, href: '/vault' },
     { id: 'orders', label: 'Orders', icon: BookOpenIcon, href: '/trade' },
     { id: 'governance', label: 'Governance', icon: ShieldCheckIcon, href: '/admin' },
-    { id: 'settings', label: 'Settings', icon: CogIcon, href: '/' },
+    { id: 'settings', label: 'Settings', icon: CogIcon, href: '/settings' },
   ];
 
-  // Determine active route based on pathname
   const getActiveRoute = () => {
     if (pathname === '/') return 'dashboard';
     if (pathname === '/markets') return 'markets';
@@ -55,27 +54,21 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   };
 
   const handleNavigation = (href: string) => {
-    // Use Next.js router for client-side navigation
     router.push(href);
   };
 
   return (
-    <div className={`bg-gray-800/20 border-r border-gray-700 transition-all duration-300 ease-in-out ${
-      isCollapsed ? 'w-16' : 'w-64'
-    }`}>
+    <div
+      className={`bg-gray-800/50 border-r border-gray-700/50 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16' : 'w-64'
+      } h-full`}
+    >
       <div className="p-4">
-        <div className="flex items-center justify-between mb-6">
-          {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-white font-semibold text-lg">DomainFutures</span>
-            </div>
-          )}
+        <div className="flex items-center justify-end mb-6">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-md hover:bg-gray-700 transition-colors"
+            className="p-1 rounded-md hover:bg-gray-700/50 transition-colors duration-200"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <svg
               className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
@@ -99,7 +92,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = getActiveRoute() === item.id;
-            
+
             return (
               <Link
                 key={item.id}
@@ -129,9 +122,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               <UserIcon className="h-4 w-4 text-gray-400" />
               <span className="text-sm text-gray-300">Account</span>
             </div>
-            <div className="text-xs text-gray-400 mb-3">
-              0x1234...5678
-            </div>
+            <div className="text-xs text-gray-400 mb-3">0x1234...5678</div>
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">Balance:</span>
