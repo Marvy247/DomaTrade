@@ -2,15 +2,17 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { marketsData, Market, generateOrderbook } from '@/lib/mockData';
-import { 
-  ChartBarIcon, 
-  ArrowTrendingUpIcon, 
+import { useStore } from '@/lib/store';
+import {
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   ClockIcon,
   FireIcon
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 interface ExtendedMarket extends Market {
   domain: string;
@@ -27,6 +29,9 @@ export default function Markets() {
   const [selectedMarket, setSelectedMarket] = useState<ExtendedMarket | null>(null);
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D'>('24H');
   const [isLoading, setIsLoading] = useState(true);
+  const [buyAmount, setBuyAmount] = useState('');
+  const [sellAmount, setSellAmount] = useState('');
+  const { addPosition, addActivity } = useStore();
 
   // Domain extensions mapping
   const domainExtensions = {
@@ -66,6 +71,44 @@ export default function Markets() {
     
     loadMarkets();
   }, []);
+
+  const handleBuy = () => {
+    if (!buyAmount || parseFloat(buyAmount) <= 0) {
+      toast.error('Please enter a valid amount.');
+      return;
+    }
+    const amount = parseFloat(buyAmount);
+    addPosition({
+      domain: selectedMarket!.domain,
+      price: selectedMarket!.price,
+      size: amount,
+      side: 'buy',
+    });
+    addActivity({
+      domain: selectedMarket!.domain,
+      price: selectedMarket!.price,
+      size: amount,
+      side: 'buy',
+    });
+    toast.success(`Successfully bought ${buyAmount} ${selectedMarket?.domain}`);
+    setBuyAmount('');
+  };
+
+  const handleSell = () => {
+    if (!sellAmount || parseFloat(sellAmount) <= 0) {
+      toast.error('Please enter a valid amount.');
+      return;
+    }
+    const amount = parseFloat(sellAmount);
+    addActivity({
+      domain: selectedMarket!.domain,
+      price: selectedMarket!.price,
+      size: amount,
+      side: 'sell',
+    });
+    toast.success(`Successfully sold ${sellAmount} ${selectedMarket?.domain}`);
+    setSellAmount('');
+  };
 
   const bestBid = useMemo(() => {
     if (!selectedMarket) return 0;
@@ -165,7 +208,7 @@ export default function Markets() {
               key={market.domain}
               onClick={() => setSelectedMarket(market)}
               className={`p-3 rounded-lg border transition-all ${selectedMarket.domain === market.domain 
-                ? 'border-indigo-500 bg-indigo-900/20' 
+                ? 'border-indigo-500 bg-indigo-900/20'
                 : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}`}
             >
               <div className="text-sm font-semibold text-white">{market.domain}</div>
@@ -234,12 +277,36 @@ export default function Markets() {
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4">
         <h3 className="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
-            Buy {selectedMarket.domain}
-          </button>
-          <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
-            Sell {selectedMarket.domain}
-          </button>
+          <div className="space-y-2">
+            <input
+              type="number"
+              value={buyAmount}
+              onChange={(e) => setBuyAmount(e.target.value)}
+              placeholder="Amount to buy"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button
+              onClick={handleBuy}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+            >
+              Buy {selectedMarket.domain}
+            </button>
+          </div>
+          <div className="space-y-2">
+            <input
+              type="number"
+              value={sellAmount}
+              onChange={(e) => setSellAmount(e.target.value)}
+              placeholder="Amount to sell"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button
+              onClick={handleSell}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+            >
+              Sell {selectedMarket.domain}
+            </button>
+          </div>
         </div>
       </div>
     </div>

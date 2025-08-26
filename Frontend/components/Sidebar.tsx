@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useAccount, useBalance } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
   ChartBarIcon,
   ClockIcon,
@@ -26,6 +28,8 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: HomeIcon, href: '/' },
@@ -41,16 +45,8 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   ];
 
   const getActiveRoute = () => {
-    if (pathname === '/') return 'dashboard';
-    if (pathname === '/markets') return 'markets';
-    if (pathname === '/positions') return 'positions';
-    if (pathname === '/etf-options') return 'etf-options';
-    if (pathname === '/competition') return 'competition';
-    if (pathname === '/activity') return 'activity';
-    if (pathname === '/vault') return 'portfolio';
-    if (pathname === '/trade') return 'orders';
-    if (pathname === '/admin') return 'governance';
-    return 'dashboard';
+    const route = pathname.split('/')[1];
+    return route || 'dashboard';
   };
 
   const handleNavigation = (href: string) => {
@@ -118,25 +114,35 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
         {!isCollapsed && (
           <div className="mt-8 p-4 bg-gray-700/30 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <UserIcon className="h-4 w-4 text-gray-400" />
-              <span className="text-sm text-gray-300">Account</span>
-            </div>
-            <div className="text-xs text-gray-400 mb-3">0x1234...5678</div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Balance:</span>
-                <span className="text-gray-200">12.5 ETH</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Margin:</span>
-                <span className="text-gray-200">8.2 ETH</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">P&L:</span>
-                <span className="text-teal-400">+$2,340.50</span>
-              </div>
-            </div>
+            {isConnected ? (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  <UserIcon className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm text-gray-300">Account</span>
+                </div>
+                <div className="text-xs text-gray-400 mb-3 truncate">
+                  {address}
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Balance:</span>
+                    <span className="text-gray-200">
+                      {balance ? `${parseFloat(balance.formatted).toFixed(4)} ${balance.symbol}` : 'Loading...'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Margin:</span>
+                    <span className="text-gray-200">$0.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">P&L:</span>
+                    <span className="text-teal-400">$0.00</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <ConnectButton />
+            )}
           </div>
         )}
       </div>
