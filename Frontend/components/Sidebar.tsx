@@ -134,11 +134,11 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Margin:</span>
-                    <span className="text-gray-200">$0.00</span>
+                    <span className="text-gray-200">$2.07</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">P&L:</span>
-                    <span className="text-teal-400">$0.00</span>
+                    <span className="text-teal-400">$10.50</span>
                   </div>
                 </div>
               </>
