@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAccount, useBalance } from 'wagmi';
@@ -9,14 +9,10 @@ import {
   ChartBarIcon,
   ClockIcon,
   UserIcon,
-  CogIcon,
   HomeIcon,
   ArrowTrendingUpIcon,
   WalletIcon,
   BookOpenIcon,
-  ShieldCheckIcon,
-  TrophyIcon,
-  ChartPieIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -30,18 +26,24 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
   const { data: balance } = useBalance({ address });
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const shortenAddress = (addr: string) => {
+    if (!addr) return '';
+    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+  };
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: HomeIcon, href: '/' },
     { id: 'markets', label: 'Markets', icon: ArrowTrendingUpIcon, href: '/markets' },
+    { id: 'trade', label: 'Trade', icon: BookOpenIcon, href: '/trade' },
     { id: 'positions', label: 'Positions', icon: ChartBarIcon, href: '/positions' },
-    { id: 'etf-options', label: 'ETF Options', icon: ChartPieIcon, href: '/etf-options' },
-    { id: 'competition', label: 'Competition', icon: TrophyIcon, href: '/competition' },
+    { id: 'vault', label: 'Vault', icon: WalletIcon, href: '/vault' },
     { id: 'activity', label: 'Activity', icon: ClockIcon, href: '/activity' },
-    { id: 'portfolio', label: 'Portfolio', icon: WalletIcon, href: '/vault' },
-    { id: 'orders', label: 'Orders', icon: BookOpenIcon, href: '/trade' },
-    { id: 'governance', label: 'Governance', icon: ShieldCheckIcon, href: '/admin' },
-    { id: 'settings', label: 'Settings', icon: CogIcon, href: '/settings' },
   ];
 
   const getActiveRoute = () => {
@@ -112,7 +114,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           })}
         </nav>
 
-        {!isCollapsed && (
+        {!isCollapsed && isClient && (
           <div className="mt-8 p-4 bg-gray-700/30 rounded-lg">
             {isConnected ? (
               <>
@@ -121,7 +123,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   <span className="text-sm text-gray-300">Account</span>
                 </div>
                 <div className="text-xs text-gray-400 mb-3 truncate">
-                  {address}
+                  {shortenAddress(address as string)}
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">

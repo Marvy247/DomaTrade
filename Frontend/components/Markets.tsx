@@ -13,8 +13,25 @@ import {
   FireIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useContractWrite } from 'wagmi';
+import { parseEther } from 'viem';
+import DomainFuturesABI from '@/lib/abi/DomainFutures.json';
 
-// Define types for store actions
+// Define types for mock data
+interface Order {
+  price: number;
+  quantity: number;
+}
+
+interface Orderbook {
+  bids: Order[];
+  asks: Order[];
+}
+
+interface Market {
+  name: string;
+}
+
 interface Position {
   domain: string;
   price: number;
@@ -37,6 +54,7 @@ interface ExtendedMarket extends Market {
   volume24h: number;
   marketCap: number;
   sentiment: 'bullish' | 'bearish' | 'neutral';
+  orderbook: Orderbook;
 }
 
 const SkeletonLoader = () => (
@@ -72,6 +90,59 @@ export default function Markets() {
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
   const { addPosition, addActivity } = useStore();
+  const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+
+  const { write: buy, isLoading: isBuyLoading } = useContractWrite({
+    address: contractAddress as `0x${string}`,
+    abi: DomainFuturesABI,
+    functionName: 'openPosition',
+    onSuccess: () => {
+      if (!selectedMarket) return;
+      toast.success(`Successfully bought ${buyAmount} ${selectedMarket.domain}`);
+      addPosition({
+        domain: selectedMarket.domain,
+        price: selectedMarket.price,
+        size: parseFloat(buyAmount),
+        side: 'buy',
+      });
+      addActivity({
+        domain: selectedMarket.domain,
+        price: selectedMarket.price,
+        size: parseFloat(buyAmount),
+        side: 'buy',
+      });
+      setBuyAmount('');
+    },
+    onError: (error) => {
+      toast.error(`Error buying domain: ${error.message}`);
+    },
+  });
+
+  const { write: sell, isLoading: isSellLoading } = useContractWrite({
+    address: contractAddress as `0x${string}`,
+    abi: DomainFuturesABI,
+    functionName: 'openPosition',
+    onSuccess: () => {
+      if (!selectedMarket) return;
+      toast.success(`Successfully sold ${sellAmount} ${selectedMarket.domain}`);
+      addPosition({
+        domain: selectedMarket.domain,
+        price: selectedMarket.price,
+        size: parseFloat(sellAmount),
+        side: 'sell',
+      });
+      addActivity({
+        domain: selectedMarket.domain,
+        price: selectedMarket.price,
+        size: parseFloat(sellAmount),
+        side: 'sell',
+      });
+      setSellAmount('');
+    },
+    onError: (error) => {
+      toast.error(`Error selling domain: ${error.message}`);
+    },
+  });
 
   // Domain extensions mapping
   const domainExtensions = {
@@ -86,7 +157,7 @@ export default function Markets() {
     const loadMarkets = async () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const extendedMarkets: ExtendedMarket[] = marketsData.map((market, index) => {
+      const extendedMarkets: ExtendedMarket[] = marketsData.map((market) => {
         const sentimentValue: 'bullish' | 'bearish' | 'neutral' = Math.random() > 0.5 ? 'bullish' : Math.random() > 0.3 ? 'bearish' : 'neutral';
         return {
           ...market,
@@ -121,55 +192,19 @@ export default function Markets() {
   }, []);
 
   const handleBuy = () => {
-    if (!selectedMarket) {
-      toast.error('No market selected.');
+    if (!buy || !selectedMarket || !buyAmount || parseFloat(buyAmount) <= 0) {
+      toast.error('Please select a market and enter a valid amount.');
       return;
     }
-    if (!buyAmount || parseFloat(buyAmount) <= 0) {
-      toast.error('Please enter a valid amount.');
-      return;
-    }
-    const amount = parseFloat(buyAmount);
-    addPosition({
-      domain: selectedMarket.domain,
-      price: selectedMarket.price,
-      size: amount,
-      side: 'buy',
-    });
-    addActivity({
-      domain: selectedMarket.domain,
-      price: selectedMarket.price,
-      size: amount,
-      side: 'buy',
-    });
-    toast.success(`Successfully bought ${buyAmount} ${selectedMarket.domain}`);
-    setBuyAmount('');
+    buy({ args: [selectedMarket?.domain || '', parseEther(buyAmount || '0'), true] });
   };
 
   const handleSell = () => {
-    if (!selectedMarket) {
-      toast.error('No market selected.');
+    if (!sell || !selectedMarket || !sellAmount || parseFloat(sellAmount) <= 0) {
+      toast.error('Please select a market and enter a valid amount.');
       return;
     }
-    if (!sellAmount || parseFloat(sellAmount) <= 0) {
-      toast.error('Please enter a valid amount.');
-      return;
-    }
-    const amount = parseFloat(sellAmount);
-    addPosition({
-      domain: selectedMarket.domain,
-      price: selectedMarket.price,
-      size: amount,
-      side: 'sell',
-    });
-    addActivity({
-      domain: selectedMarket.domain,
-      price: selectedMarket.price,
-      size: amount,
-      side: 'sell',
-    });
-    toast.success(`Successfully sold ${sellAmount} ${selectedMarket.domain}`);
-    setSellAmount('');
+    sell({ args: [selectedMarket?.domain || '', parseEther(sellAmount || '0'), false] });
   };
 
   const bestBid = useMemo(() => {
@@ -359,14 +394,15 @@ export default function Markets() {
               type="number"
               value={buyAmount}
               onChange={e => setBuyAmount(e.target.value)}
-              placeholder="Amount to buy"
+              placeholder="Amount to buy (ETH)"
               className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
             />
             <button
               onClick={handleBuy}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+              disabled={isBuyLoading || !buy}
+              className="w-full bg-teal-600 hover:bg-teal-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Buy {selectedMarket.domain}
+              {isBuyLoading ? 'Buying...' : `Buy ${selectedMarket.domain}`}
             </button>
           </div>
           <div className="space-y-2">
@@ -374,14 +410,15 @@ export default function Markets() {
               type="number"
               value={sellAmount}
               onChange={e => setSellAmount(e.target.value)}
-              placeholder="Amount to sell"
+              placeholder="Amount to sell (ETH)"
               className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
             />
             <button
               onClick={handleSell}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+              disabled={isSellLoading || !sell}
+              className="w-full bg-amber-600 hover:bg-amber-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sell {selectedMarket.domain}
+              {isSellLoading ? 'Selling...' : `Sell ${selectedMarket.domain}`}
             </button>
           </div>
         </div>
