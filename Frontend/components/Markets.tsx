@@ -10,9 +10,24 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
   ClockIcon,
-  FireIcon
+  FireIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+
+// Define types for store actions
+interface Position {
+  domain: string;
+  price: number;
+  size: number;
+  side: 'buy' | 'sell';
+}
+
+interface Activity {
+  domain: string;
+  price: number;
+  size: number;
+  side: 'buy' | 'sell';
+}
 
 interface ExtendedMarket extends Market {
   domain: string;
@@ -23,6 +38,31 @@ interface ExtendedMarket extends Market {
   marketCap: number;
   sentiment: 'bullish' | 'bearish' | 'neutral';
 }
+
+const SkeletonLoader = () => (
+  <div className="space-y-6 animate-pulse">
+    <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-6">
+      <div className="h-8 bg-gray-700 rounded w-3/4"></div>
+      <div className="h-4 bg-gray-700 rounded w-1/4 mt-2"></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div className="bg-gray-700/50 rounded-lg p-3 h-16"></div>
+        <div className="bg-gray-700/50 rounded-lg p-3 h-16"></div>
+        <div className="bg-gray-700/50 rounded-lg p-3 h-16"></div>
+        <div className="bg-gray-700/50 rounded-lg p-3 h-16"></div>
+      </div>
+    </div>
+    <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4">
+      <div className="h-6 bg-gray-700 rounded w-1/3 mb-4"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="bg-gray-700/50 rounded-lg h-20"></div>
+        <div className="bg-gray-700/50 rounded-lg h-20"></div>
+        <div className="bg-gray-700/50 rounded-lg h-20"></div>
+        <div className="bg-gray-700/50 rounded-lg h-20"></div>
+        <div className="bg-gray-700/50 rounded-lg h-20"></div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function Markets() {
   const [markets, setMarkets] = useState<ExtendedMarket[]>([]);
@@ -45,10 +85,7 @@ export default function Markets() {
   useEffect(() => {
     const loadMarkets = async () => {
       setIsLoading(true);
-      
-      // Simulate API delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1500));
       const extendedMarkets: ExtendedMarket[] = marketsData.map((market, index) => {
         const sentimentValue: 'bullish' | 'bearish' | 'neutral' = Math.random() > 0.5 ? 'bullish' : Math.random() > 0.3 ? 'bearish' : 'neutral';
         return {
@@ -63,50 +100,75 @@ export default function Markets() {
           orderbook: generateOrderbook(),
         };
       });
-      
       setMarkets(extendedMarkets);
-      setSelectedMarket(extendedMarkets[0]);
+      setSelectedMarket(extendedMarkets[0] || null);
       setIsLoading(false);
     };
-    
     loadMarkets();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMarkets(prevMarkets =>
+        prevMarkets.map(market => ({
+          ...market,
+          price: market.price * (1 + (Math.random() - 0.5) * 0.01),
+          change24h: market.change24h + (Math.random() - 0.5) * 0.1,
+        }))
+      );
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleBuy = () => {
+    if (!selectedMarket) {
+      toast.error('No market selected.');
+      return;
+    }
     if (!buyAmount || parseFloat(buyAmount) <= 0) {
       toast.error('Please enter a valid amount.');
       return;
     }
     const amount = parseFloat(buyAmount);
     addPosition({
-      domain: selectedMarket!.domain,
-      price: selectedMarket!.price,
+      domain: selectedMarket.domain,
+      price: selectedMarket.price,
       size: amount,
       side: 'buy',
     });
     addActivity({
-      domain: selectedMarket!.domain,
-      price: selectedMarket!.price,
+      domain: selectedMarket.domain,
+      price: selectedMarket.price,
       size: amount,
       side: 'buy',
     });
-    toast.success(`Successfully bought ${buyAmount} ${selectedMarket?.domain}`);
+    toast.success(`Successfully bought ${buyAmount} ${selectedMarket.domain}`);
     setBuyAmount('');
   };
 
   const handleSell = () => {
+    if (!selectedMarket) {
+      toast.error('No market selected.');
+      return;
+    }
     if (!sellAmount || parseFloat(sellAmount) <= 0) {
       toast.error('Please enter a valid amount.');
       return;
     }
     const amount = parseFloat(sellAmount);
-    addActivity({
-      domain: selectedMarket!.domain,
-      price: selectedMarket!.price,
+    addPosition({
+      domain: selectedMarket.domain,
+      price: selectedMarket.price,
       size: amount,
       side: 'sell',
     });
-    toast.success(`Successfully sold ${sellAmount} ${selectedMarket?.domain}`);
+    addActivity({
+      domain: selectedMarket.domain,
+      price: selectedMarket.price,
+      size: amount,
+      side: 'sell',
+    });
+    toast.success(`Successfully sold ${sellAmount} ${selectedMarket.domain}`);
     setSellAmount('');
   };
 
@@ -126,11 +188,7 @@ export default function Markets() {
   }, [bestBid, bestAsk]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <SkeletonLoader />;
   }
 
   if (!selectedMarket) {
@@ -138,83 +196,87 @@ export default function Markets() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Market Overview Header */}
-      <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-gray-700 rounded-xl p-6">
+      <div className="bg-gradient-to-r from-indigo-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-100 flex items-center gap-2">
               {selectedMarket.domain}
-              <span className="text-sm font-normal bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">
+              <span className="text-xs sm:text-sm font-normal bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded">
                 {selectedMarket.tld}
               </span>
             </h1>
-            <p className="text-gray-400 mt-1">
-              {domainExtensions[selectedMarket.domain as keyof typeof domainExtensions]?.category} Domain
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              {domainExtensions[selectedMarket.domain as keyof typeof domainExtensions]?.category || 'General'} Domain
             </p>
           </div>
-          
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-2xl font-bold text-white">${selectedMarket.price.toLocaleString()}</p>
-              <p className={`text-sm flex items-center gap-1 ${selectedMarket.change24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {selectedMarket.change24h > 0 ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />}
+              <p className="text-lg sm:text-xl font-bold text-gray-100">${selectedMarket.price.toLocaleString()}</p>
+              <p className={`text-xs sm:text-sm flex items-center gap-1 ${selectedMarket.change24h >= 0 ? 'text-teal-400' : 'text-amber-400'}`}>
+                {selectedMarket.change24h >= 0 ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />}
                 {Math.abs(selectedMarket.change24h).toFixed(2)}%
               </p>
             </div>
           </div>
         </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">24h Volume</p>
-            <p className="text-lg font-semibold text-white">${(selectedMarket.volume24h / 1000).toFixed(0)}K</p>
+            <p className="text-sm sm:text-lg font-semibold text-gray-100">${(selectedMarket.volume24h / 1000).toFixed(0)}K</p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">Market Cap</p>
-            <p className="text-lg font-semibold text-white">${(selectedMarket.marketCap / 1000000).toFixed(1)}M</p>
+            <p className="text-sm sm:text-lg font-semibold text-gray-100">${(selectedMarket.marketCap / 1000000).toFixed(1)}M</p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">Best Bid</p>
-            <p className="text-lg font-semibold text-green-400">${bestBid.toLocaleString()}</p>
+            <p className="text-sm sm:text-lg font-semibold text-teal-400">${bestBid.toLocaleString()}</p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">Best Ask</p>
-            <p className="text-lg font-semibold text-red-400">${bestAsk.toLocaleString()}</p>
+            <p className="text-sm sm:text-lg font-semibold text-amber-400">${bestAsk.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
       {/* Market Selector */}
-      <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4">
+      <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-100">Domain Markets</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
+            <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+            Domain Markets
+          </h3>
           <div className="flex gap-2">
             {['1H', '24H', '7D'].map(tf => (
               <button
                 key={tf}
-                onClick={() => setTimeframe(tf as any)}
-                className={`px-3 py-1 text-sm rounded ${timeframe === tf ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+                onClick={() => setTimeframe(tf as '1H' | '24H' | '7D')}
+                className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg transition-colors duration-200 ${
+                  timeframe === tf ? 'bg-indigo-600 text-gray-100' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
               >
                 {tf}
               </button>
             ))}
           </div>
         </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {markets.map(market => (
             <button
               key={market.domain}
               onClick={() => setSelectedMarket(market)}
-              className={`p-3 rounded-lg border transition-all ${selectedMarket.domain === market.domain 
-                ? 'border-indigo-500 bg-indigo-900/20'
-                : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}`}
+              className={`p-3 rounded-lg border transition-all duration-200 ${
+                selectedMarket && selectedMarket.domain === market.domain
+                  ? 'border-indigo-400 bg-indigo-900/20'
+                  : 'border-gray-700 bg-gray-800/50 hover:border-indigo-500 hover:bg-indigo-900/10'
+              }`}
             >
-              <div className="text-sm font-semibold text-white">{market.domain}</div>
+              <div className="text-xs sm:text-sm font-semibold text-gray-100">{market.domain}</div>
               <div className="text-xs text-gray-400">${market.price.toLocaleString()}</div>
-              <div className={`text-xs ${market.change24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {market.change24h > 0 ? '+' : ''}{market.change24h.toFixed(2)}%
+              <div className={`text-xs ${market.change24h >= 0 ? 'text-teal-400' : 'text-amber-400'}`}>
+                {market.change24h >= 0 ? '+' : ''}{market.change24h.toFixed(2)}%
               </div>
             </button>
           ))}
@@ -223,48 +285,60 @@ export default function Markets() {
 
       {/* Order Book */}
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
-        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ChartBarIcon className="h-5 w-5 text-indigo-400" />
-            <h3 className="text-lg font-semibold text-gray-100">Live Order Book</h3>
+            <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-100">Live Order Book</h3>
           </div>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
             <span className="text-gray-400">Spread: ${spread.toFixed(2)}</span>
-            <div className={`flex items-center gap-1 ${selectedMarket.sentiment === 'bullish' ? 'text-green-400' : selectedMarket.sentiment === 'bearish' ? 'text-red-400' : 'text-gray-400'}`}>
+            <div
+              className={`flex items-center gap-1 ${
+                selectedMarket.sentiment === 'bullish'
+                  ? 'text-teal-400'
+                  : selectedMarket.sentiment === 'bearish'
+                    ? 'text-amber-400'
+                    : 'text-gray-400'
+              }`}
+            >
               {selectedMarket.sentiment === 'bullish' && <ArrowTrendingUpIcon className="h-4 w-4" />}
               {selectedMarket.sentiment === 'bearish' && <ArrowTrendingDownIcon className="h-4 w-4" />}
-              {selectedMarket.sentiment}
+              {selectedMarket.sentiment.charAt(0).toUpperCase() + selectedMarket.sentiment.slice(1)}
             </div>
           </div>
         </div>
-        
-        <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Asks */}
           <div>
-            <h4 className="text-md font-semibold text-red-400 mb-3 flex items-center gap-2">
+            <h4 className="text-sm sm:text-md font-semibold text-amber-400 mb-3 flex items-center gap-2">
               <FireIcon className="h-4 w-4" />
               Sell Orders (Asks)
             </h4>
             <div className="space-y-1">
               {selectedMarket.orderbook.asks.slice(0, 10).map((ask, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-red-500/5 rounded hover:bg-red-500/10 transition-colors">
-                  <span className="text-red-400 font-medium">${ask.price.toLocaleString()}</span>
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-2 bg-amber-500/5 rounded-lg hover:bg-amber-500/10 transition-colors duration-200"
+                >
+                  <span className="text-amber-400 font-medium">${ask.price.toLocaleString()}</span>
                   <span className="text-gray-300">{ask.quantity}</span>
                 </div>
               ))}
             </div>
           </div>
-          
           {/* Bids */}
           <div>
-            <h4 className="text-md font-semibold text-green-400 mb-3 flex items-center gap-2">
+            <h4 className="text-sm sm:text-md font-semibold text-teal-400 mb-3 flex items-center gap-2">
               <ClockIcon className="h-4 w-4" />
               Buy Orders (Bids)
             </h4>
             <div className="space-y-1">
               {selectedMarket.orderbook.bids.slice(0, 10).map((bid, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-green-500/5 rounded hover:bg-green-500/10 transition-colors">
-                  <span className="text-green-400 font-medium">${bid.price.toLocaleString()}</span>
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-2 bg-teal-500/5 rounded-lg hover:bg-teal-500/10 transition-colors duration-200"
+                >
+                  <span className="text-teal-400 font-medium">${bid.price.toLocaleString()}</span>
                   <span className="text-gray-300">{bid.quantity}</span>
                 </div>
               ))}
@@ -274,20 +348,23 @@ export default function Markets() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4">
-        <h3 className="text-lg font-semibold text-gray-100 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-100 mb-4 flex items-center gap-2">
+          <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+          Quick Actions
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-2">
             <input
               type="number"
               value={buyAmount}
-              onChange={(e) => setBuyAmount(e.target.value)}
+              onChange={e => setBuyAmount(e.target.value)}
               placeholder="Amount to buy"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
             />
             <button
               onClick={handleBuy}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+              className="w-full bg-teal-600 hover:bg-teal-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
             >
               Buy {selectedMarket.domain}
             </button>
@@ -296,13 +373,13 @@ export default function Markets() {
             <input
               type="number"
               value={sellAmount}
-              onChange={(e) => setSellAmount(e.target.value)}
+              onChange={e => setSellAmount(e.target.value)}
               placeholder="Amount to sell"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
             />
             <button
               onClick={handleSell}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
             >
               Sell {selectedMarket.domain}
             </button>
