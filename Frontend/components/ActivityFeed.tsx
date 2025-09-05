@@ -91,7 +91,7 @@ export default function ActivityFeed() {
                         {activity.side.toUpperCase()}
                       </span>
                     )}
-                    <span>{new Date(activity.timestamp).toLocaleTimeString('en-US')}</span>
+                    <span suppressHydrationWarning>{new Date(activity.timestamp).toLocaleTimeString('en-US')}</span>
                   </div>
                 </div>
               </div>

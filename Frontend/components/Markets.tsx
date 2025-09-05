@@ -418,7 +418,7 @@ export default function Markets() {
             <TradingChart selectedMarket={selectedMarket.domain} timeframe={timeframe} />
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 sm:mt-6">
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">24h Volume</p>
             <p className="text-sm sm:text-lg font-semibold text-gray-100">${(selectedMarket.volume24h / 1000).toFixed(0)}K</p>
