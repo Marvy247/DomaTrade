@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -7,13 +6,6 @@ import { Providers } from "@/lib/providers";
 import { Toaster } from 'react-hot-toast';
 import ClientLayout from "@/components/ClientLayout";
 import './globals.css';
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: 'swap',
-  preload: false,
-  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
-});
 
 export const metadata: Metadata = {
   title: "DomaTrade",
@@ -27,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full bg-gray-950">
-      <body className={`${inter.className} h-full antialiased text-gray-100 bg-gradient-to-br from-gray-950 to-gray-900`}>
+      <body className="h-full antialiased text-gray-100 bg-gradient-to-br from-gray-950 to-gray-900 font-sans">
         <Providers>
           <ClientLayout>{children}</ClientLayout>
           {/* Toaster */}

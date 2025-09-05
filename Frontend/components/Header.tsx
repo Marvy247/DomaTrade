@@ -5,6 +5,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useStore } from '@/lib/store';
 import {
   HomeIcon,
   ArrowTrendingUpIcon,
@@ -19,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function Header({ className }: { className?: string }) {
+  const { sidebarCollapsed } = useStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
