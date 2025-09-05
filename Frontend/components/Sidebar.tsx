@@ -26,23 +26,12 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
-  let address, isConnected, balance;
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  try {
-    const accountData = useAccount();
-    address = accountData.address;
-    isConnected = accountData.isConnected;
-    balance = useBalance({ address }).data;
-  } catch (error) {
-    // WagmiProvider not ready yet
-    address = undefined;
-    isConnected = false;
-    balance = undefined;
-  }
 
   const shortenAddress = (addr: string) => {
     if (!addr) return '';
