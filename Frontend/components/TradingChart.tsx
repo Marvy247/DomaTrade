@@ -46,6 +46,16 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
         },
         timeScale: {
           borderColor: '#485c7b',
+          rightOffset: 12,
+          fixRightEdge: true,
+          timeVisible: true,
+          secondsVisible: false,
+        },
+        rightPriceScale: {
+          borderColor: '#485c7b',
+        },
+        crosshair: {
+          mode: 1, // CrosshairMode.Normal
         },
       });
 
@@ -97,13 +107,16 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
 
       // Simulate real-time data update every 2 seconds
       const interval = setInterval(() => {
-        if (candlestickSeriesRef.current) {
+        if (candlestickSeriesRef.current && chartRef.current) {
           const newData = generateRealtimeData();
           candlestickSeriesRef.current.update(newData);
           // Update indicators with mock data
           rsiSeriesRef.current?.update({ time: newData.time, value: 50 + Math.random() * 50 });
           macdSeriesRef.current?.update({ time: newData.time, value: (Math.random() - 0.5) * 10 });
           smaSeriesRef.current?.update({ time: newData.time, value: 100 + Math.random() * 50 });
+
+          // Scroll to the latest data point
+          chartRef.current.timeScale().scrollToPosition(0, true);
         }
       }, 2000);
 
