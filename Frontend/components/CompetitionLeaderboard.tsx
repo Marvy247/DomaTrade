@@ -30,7 +30,7 @@ export default function CompetitionLeaderboard() {
   };
 
   return (
-    <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm mx-auto max-w-4xl">
+    <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm mx-auto max-full w-full">
       <div className="p-4 sm:p-6 border-b border-gray-700">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
           <TrophyIcon className="h-5 w-5 text-amber-400" />

@@ -47,15 +47,11 @@ export default function Positions() {
   };
 
   return (
-    <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm mx-auto max-w-7xl">
-      <div className="p-4 sm:p-6 border-b border-gray-700">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-100">Domain Futures Positions</h3>
-        <p className="text-xs sm:text-sm text-gray-400 mt-1">Manage your leveraged positions on domain names</p>
-      </div>
+    <div>
       <div className="overflow-x-auto">
         {positions.length > 0 ? (
           <table className="w-full">
-            <thead>
+            <thead className="sticky top-0 bg-gray-800/80 z-10">
               <tr className="border-b border-gray-700">
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Domain

@@ -44,15 +44,7 @@ export default function ActivityFeed() {
   };
 
   return (
-    <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm mx-auto max-w-7xl">
-      <div className="p-4 sm:p-6 border-b border-gray-700">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
-          <ClockIcon className="h-4 w-4 text-indigo-400" />
-          Domain Futures Activity
-        </h3>
-        <p className="text-xs sm:text-sm text-gray-400 mt-1">Recent trading activity across domain futures markets</p>
-      </div>
-      <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6">
         {activities.length > 0 ? (
           <div className="space-y-4">
             {activities.map((activity) => (
@@ -104,7 +96,6 @@ export default function ActivityFeed() {
             <p className="mt-1 text-sm text-gray-400">Your recent trading activity will appear here.</p>
           </div>
         )}
-      </div>
     </div>
   );
 }

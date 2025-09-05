@@ -35,21 +35,39 @@ export default function Home() {
 
       {/* Portfolio Overview: Two column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Positions */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl">
-          <Positions />
+        {/* Left column: Positions and Activity */}
+        <div className="flex flex-col gap-0">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl flex-1 overflow-y-auto flex flex-col min-h-[300px]">
+            <div className="overflow-x-auto sticky top-0 z-10 bg-gray-800/80 border-b border-gray-700">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-100">Domain Futures Positions</h3>
+                <p className="text-xs sm:text-sm text-gray-400 mt-1">Manage your leveraged positions on domain names</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Positions />
+            </div>
+          </div>
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl flex-1 overflow-y-auto flex flex-col min-h-[300px] mt-10">
+            <div className="sticky top-0 z-10 bg-gray-800/80 border-b border-gray-700 p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
+                <svg className="h-4 w-4 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3"></path>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
+                </svg>
+                Domain Futures Activity
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Recent trading activity across domain futures markets</p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <ActivityFeed />
+            </div>
+          </div>
         </div>
 
         {/* Portfolio Analytics */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl">
           <PortfolioAnalytics />
-        </div>
-      </div>
-
-      {/* Activity Feed: Full width */}
-      <div className="w-full">
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl">
-          <ActivityFeed />
         </div>
       </div>
 
