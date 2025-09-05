@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useStore } from '@/lib/store';
 import {
   ChartBarIcon,
   ClockIcon,
@@ -21,7 +22,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { sidebarCollapsed, toggleSidebar } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
@@ -39,8 +40,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: HomeIcon, href: '/' },
-    { id: 'markets', label: 'Markets', icon: ArrowTrendingUpIcon, href: '/markets' },
-    { id: 'trade', label: 'Trade', icon: BookOpenIcon, href: '/trade' },
+    { id: 'trade', label: 'Trading', icon: BookOpenIcon, href: '/trade' },
     { id: 'positions', label: 'Positions', icon: ChartBarIcon, href: '/positions' },
     { id: 'vault', label: 'Vault', icon: WalletIcon, href: '/vault' },
     { id: 'activity', label: 'Activity', icon: ClockIcon, href: '/activity' },
@@ -58,19 +58,19 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
     <div
       className={`bg-gray-800/50 border-r border-gray-700/50 transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-16' : 'w-64'
+        sidebarCollapsed ? 'w-16' : 'w-64'
       } h-full`}
     >
       <div className="p-4">
         <div className="flex items-center justify-end mb-6">
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleSidebar}
             className="p-1 rounded-md hover:bg-gray-700/50 transition-colors duration-200"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <svg
               className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
-                isCollapsed ? 'rotate-180' : ''
+                sidebarCollapsed ? 'rotate-180' : ''
               }`}
               fill="none"
               stroke="currentColor"
@@ -106,7 +106,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 }`}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && (
+                {!sidebarCollapsed && (
                   <span className="text-sm font-medium">{item.label}</span>
                 )}
               </Link>
@@ -114,7 +114,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           })}
         </nav>
 
-        {!isCollapsed && isClient && (
+        {!sidebarCollapsed && isClient && (
           <div className="mt-8 p-4 bg-gray-700/30 rounded-lg">
             {isConnected ? (
               <>

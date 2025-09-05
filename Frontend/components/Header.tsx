@@ -55,14 +55,14 @@ export default function Header({ className }: { className?: string }) {
       {/* Hamburger Menu Button (Mobile Only) */}
       <button
         type="button"
-        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-2 transition-colors duration-200"
+        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-3 transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         aria-label="Toggle navigation menu"
       >
         {isMobileMenuOpen ? (
-          <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+          <XMarkIcon className="h-5 w-5" aria-hidden="true" />
         ) : (
-          <Bars3Icon className="h-4 w-4" aria-hidden="true" />
+          <Bars3Icon className="h-5 w-5" aria-hidden="true" />
         )}
       </button>
 

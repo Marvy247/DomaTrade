@@ -17,6 +17,7 @@ import { useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
 import DomainFuturesABI from '@/lib/abi/DomainFutures.json';
 import type { Abi } from 'viem';
+import TradingChart from './TradingChart';
 
 // Define types for mock data
 interface Order {
@@ -90,6 +91,10 @@ export default function Markets() {
   const [isLoading, setIsLoading] = useState(true);
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
+  const [priceChange, setPriceChange] = useState<{ direction: 'up' | 'down' | 'neutral'; amount: number }>({ direction: 'neutral', amount: 0 });
+  const [sentimentScore, setSentimentScore] = useState(50); // 0-100 scale
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingTrade, setPendingTrade] = useState<{ type: 'buy' | 'sell'; amount: string } | null>(null);
   const { addPosition, addActivity } = useStore();
   const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
@@ -150,6 +155,16 @@ export default function Markets() {
     'nft.eth': { tld: '.eth', category: 'NFT' },
     'game.eth': { tld: '.eth', category: 'Gaming' },
     'metaverse.eth': { tld: '.eth', category: 'Metaverse' },
+    'ai.eth': { tld: '.eth', category: 'AI' },
+    'web3.eth': { tld: '.eth', category: 'Web3' },
+    'dao.eth': { tld: '.eth', category: 'DAO' },
+    'yield.eth': { tld: '.eth', category: 'Yield' },
+    'social.eth': { tld: '.eth', category: 'Social' },
+    'music.eth': { tld: '.eth', category: 'Music' },
+    'art.eth': { tld: '.eth', category: 'Art' },
+    'sports.eth': { tld: '.eth', category: 'Sports' },
+    'finance.eth': { tld: '.eth', category: 'Finance' },
+    'tech.eth': { tld: '.eth', category: 'Tech' },
   };
 
   useEffect(() => {
@@ -182,21 +197,156 @@ export default function Markets() {
     loadMarkets();
   }, []);
 
+  // WebSocket simulation for real-time price feeds
   useEffect(() => {
+    const mockWebSocket = {
+      onmessage: null as ((event: { data: string }) => void) | null,
+      send: (data: unknown) => {
+        // Simulate WebSocket response
+        setTimeout(() => {
+          if (mockWebSocket.onmessage) {
+            mockWebSocket.onmessage({ data: JSON.stringify({
+              type: 'price_update',
+              market: selectedMarket?.domain,
+              price: selectedMarket?.price || 100,
+              change: (Math.random() - 0.5) * 2
+            }) });
+          }
+        }, 100);
+      }
+    };
+
+    const connectWebSocket = () => {
+      // Simulate connection
+      console.log('WebSocket connected');
+      mockWebSocket.send({ type: 'subscribe', market: selectedMarket?.domain });
+    };
+
+    if (selectedMarket) {
+      connectWebSocket();
+    }
+
     const interval = setInterval(() => {
       setMarkets(prevMarkets =>
-        prevMarkets.map(market => ({
-          ...market,
-          price: market.price * (1 + (Math.random() - 0.5) * 0.01),
-          change24h: market.change24h + (Math.random() - 0.5) * 0.1,
-        }))
+        prevMarkets.map(market => {
+          const oldPrice = market.price;
+          const newPrice = market.price * (1 + (Math.random() - 0.5) * 0.01);
+          const priceDiff = newPrice - oldPrice;
+
+          // Update price change indicator
+          if (selectedMarket && selectedMarket.domain === market.domain) {
+            setPriceChange({
+              direction: priceDiff > 0 ? 'up' : priceDiff < 0 ? 'down' : 'neutral',
+              amount: Math.abs(priceDiff)
+            });
+
+            // Update sentiment score based on price movement
+            setSentimentScore(prev => {
+              const change = priceDiff > 0 ? 2 : priceDiff < 0 ? -2 : 0;
+              return Math.max(0, Math.min(100, prev + change));
+            });
+          }
+
+          return {
+            ...market,
+            price: newPrice,
+            change24h: market.change24h + (Math.random() - 0.5) * 0.1,
+            // Update order book in real-time with more dynamic changes
+            orderbook: {
+              bids: market.orderbook.bids.map((bid, index) => {
+                // Occasionally make larger changes to simulate market activity
+                const volatility = Math.random() < 0.1 ? 0.02 : 0.005; // 10% chance of larger movement
+                const priceChange = (Math.random() - 0.5) * volatility;
+                const quantityChange = Math.random() < 0.2 ? (Math.random() - 0.5) * 50 : (Math.random() - 0.5) * 10;
+
+                return {
+                  ...bid,
+                  price: Math.max(0.01, bid.price * (1 + priceChange)), // Ensure price doesn't go negative
+                  quantity: Math.max(1, bid.quantity + quantityChange) // Ensure quantity stays positive
+                };
+              }),
+              asks: market.orderbook.asks.map((ask, index) => {
+                // Occasionally make larger changes to simulate market activity
+                const volatility = Math.random() < 0.1 ? 0.02 : 0.005; // 10% chance of larger movement
+                const priceChange = (Math.random() - 0.5) * volatility;
+                const quantityChange = Math.random() < 0.2 ? (Math.random() - 0.5) * 50 : (Math.random() - 0.5) * 10;
+
+                return {
+                  ...ask,
+                  price: Math.max(0.01, ask.price * (1 + priceChange)), // Ensure price doesn't go negative
+                  quantity: Math.max(1, ask.quantity + quantityChange) // Ensure quantity stays positive
+                };
+              })
+            }
+          };
+        })
       );
+
+      // Reset price change indicator after animation
+      setTimeout(() => setPriceChange({ direction: 'neutral', amount: 0 }), 1000);
     }, 2000);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      clearInterval(interval);
+      console.log('WebSocket disconnected');
+    };
+  }, [selectedMarket]);
+
+  // Keyboard shortcuts for trading actions
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (showConfirmDialog) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          if (pendingTrade?.type === 'buy') {
+            buy({
+              address: contractAddress as `0x${string}`,
+              abi: DomainFuturesABI.abi as Abi,
+              functionName: 'openPosition',
+              args: [parseEther(pendingTrade.amount), 1, true],
+            });
+          } else if (pendingTrade?.type === 'sell') {
+            sell({
+              address: contractAddress as `0x${string}`,
+              abi: DomainFuturesABI.abi as Abi,
+              functionName: 'openPosition',
+              args: [parseEther(pendingTrade.amount), 1, false],
+            });
+          }
+          setShowConfirmDialog(false);
+          setPendingTrade(null);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          setShowConfirmDialog(false);
+        }
+        return;
+      }
+
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case 'b':
+            event.preventDefault();
+            const buyInput = document.querySelector('input[placeholder*="buy"]') as HTMLInputElement;
+            buyInput?.focus();
+            break;
+          case 's':
+            event.preventDefault();
+            const sellInput = document.querySelector('input[placeholder*="sell"]') as HTMLInputElement;
+            sellInput?.focus();
+            break;
+        }
+      } else if (event.key === 'Escape') {
+        setBuyAmount('');
+        setSellAmount('');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showConfirmDialog, pendingTrade, buy, sell, contractAddress]);
 
   const handleBuy = () => {
-    if (!buy || !selectedMarket) {
+    if (!selectedMarket) {
       toast.error('Please select a market.');
       return;
     }
@@ -205,20 +355,12 @@ export default function Markets() {
       toast.error('Please enter a valid amount greater than 0.');
       return;
     }
-    try {
-      buy({
-        address: contractAddress as `0x${string}`,
-        abi: DomainFuturesABI.abi as Abi,
-        functionName: 'openPosition',
-        args: [parseEther(buyAmount), 1, true],
-      });
-    } catch (error) {
-      toast.error(`Invalid amount: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    setPendingTrade({ type: 'buy', amount: buyAmount });
+    setShowConfirmDialog(true);
   };
 
   const handleSell = () => {
-    if (!sell || !selectedMarket) {
+    if (!selectedMarket) {
       toast.error('Please select a market.');
       return;
     }
@@ -227,16 +369,8 @@ export default function Markets() {
       toast.error('Please enter a valid amount greater than 0.');
       return;
     }
-    try {
-      sell({
-        address: contractAddress as `0x${string}`,
-        abi: DomainFuturesABI.abi as Abi,
-        functionName: 'openPosition',
-        args: [parseEther(sellAmount), 1, false],
-      });
-    } catch (error) {
-      toast.error(`Invalid amount: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    setPendingTrade({ type: 'sell', amount: sellAmount });
+    setShowConfirmDialog(true);
   };
 
   const bestBid = useMemo(() => {
@@ -267,7 +401,7 @@ export default function Markets() {
     <div className="space-y-6 max-w-full mx-auto">
       {/* Market Overview Header */}
       <div className="bg-gradient-to-r from-indigo-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-100 flex items-center gap-2">
               {selectedMarket.domain}
@@ -279,14 +413,9 @@ export default function Markets() {
               {domainExtensions[selectedMarket.domain as keyof typeof domainExtensions]?.category || 'General'} Domain
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-lg sm:text-xl font-bold text-gray-100">${selectedMarket.price.toLocaleString()}</p>
-              <p className={`text-xs sm:text-sm flex items-center gap-1 ${selectedMarket.change24h >= 0 ? 'text-teal-400' : 'text-amber-400'}`}>
-                {selectedMarket.change24h >= 0 ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />}
-                {Math.abs(selectedMarket.change24h).toFixed(2)}%
-              </p>
-            </div>
+          <div className="w-full">
+            {/* TradingChart - Full width on all screen sizes */}
+            <TradingChart selectedMarket={selectedMarket.domain} timeframe={timeframe} />
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
@@ -300,11 +429,43 @@ export default function Markets() {
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">Best Bid</p>
-            <p className="text-sm sm:text-lg font-semibold text-teal-400">${bestBid.toLocaleString()}</p>
+            <p className={`text-sm sm:text-lg font-semibold transition-all duration-300 ${
+              priceChange.direction === 'up' ? 'text-teal-400 animate-pulse' :
+              priceChange.direction === 'down' ? 'text-amber-400 animate-pulse' : 'text-teal-400'
+            }`}>
+              ${bestBid.toLocaleString()}
+            </p>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-3">
             <p className="text-xs text-gray-400">Best Ask</p>
-            <p className="text-sm sm:text-lg font-semibold text-amber-400">${bestAsk.toLocaleString()}</p>
+            <p className={`text-sm sm:text-lg font-semibold transition-all duration-300 ${
+              priceChange.direction === 'up' ? 'text-teal-400 animate-pulse' :
+              priceChange.direction === 'down' ? 'text-amber-400 animate-pulse' : 'text-amber-400'
+            }`}>
+              ${bestAsk.toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        {/* Market Sentiment Gauge */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-400">Market Sentiment</span>
+            <span className={`text-xs font-medium ${
+              sentimentScore > 60 ? 'text-teal-400' :
+              sentimentScore < 40 ? 'text-amber-400' : 'text-gray-400'
+            }`}>
+              {sentimentScore > 60 ? 'Bullish' : sentimentScore < 40 ? 'Bearish' : 'Neutral'}
+            </span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div
+              className={`h-2 rounded-full transition-all duration-500 ${
+                sentimentScore > 60 ? 'bg-teal-400' :
+                sentimentScore < 40 ? 'bg-amber-400' : 'bg-gray-400'
+              }`}
+              style={{ width: `${sentimentScore}%` }}
+            ></div>
           </div>
         </div>
       </div>
@@ -342,8 +503,17 @@ export default function Markets() {
               }`}
             >
               <div className="text-xs sm:text-sm font-semibold text-gray-100">{market.domain}</div>
-              <div className="text-xs text-gray-400">${market.price.toLocaleString()}</div>
-              <div className={`text-xs ${market.change24h >= 0 ? 'text-teal-400' : 'text-amber-400'}`}>
+              <div className={`text-xs transition-all duration-300 ${
+                priceChange.direction === 'up' && selectedMarket?.domain === market.domain ? 'text-teal-400 animate-pulse' :
+                priceChange.direction === 'down' && selectedMarket?.domain === market.domain ? 'text-amber-400 animate-pulse' :
+                'text-gray-400'
+              }`}>
+                ${market.price.toLocaleString()}
+              </div>
+              <div className={`text-xs flex items-center gap-1 ${
+                market.change24h >= 0 ? 'text-teal-400' : 'text-amber-400'
+              }`}>
+                {market.change24h >= 0 ? <ArrowUpIcon className="h-3 w-3" /> : <ArrowDownIcon className="h-3 w-3" />}
                 {market.change24h >= 0 ? '+' : ''}{market.change24h.toFixed(2)}%
               </div>
             </button>
@@ -375,44 +545,52 @@ export default function Markets() {
             </div>
           </div>
         </div>
-        <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Asks */}
-          <div>
-            <h4 className="text-sm sm:text-md font-semibold text-amber-400 mb-3 flex items-center gap-2">
-              <FireIcon className="h-4 w-4" />
-              Sell Orders (Asks)
-            </h4>
-            <div className="space-y-1">
-              {selectedMarket.orderbook.asks.slice(0, 10).map((ask, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center p-2 bg-amber-500/5 rounded-lg hover:bg-amber-500/10 transition-colors duration-200"
-                >
-                  <span className="text-amber-400 font-medium">${ask.price.toLocaleString()}</span>
-                  <span className="text-gray-300">{ask.quantity}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Bids */}
-          <div>
-            <h4 className="text-sm sm:text-md font-semibold text-teal-400 mb-3 flex items-center gap-2">
-              <ClockIcon className="h-4 w-4" />
-              Buy Orders (Bids)
-            </h4>
-            <div className="space-y-1">
-              {selectedMarket.orderbook.bids.slice(0, 10).map((bid, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center p-2 bg-teal-500/5 rounded-lg hover:bg-teal-500/10 transition-colors duration-200"
-                >
-                  <span className="text-teal-400 font-medium">${bid.price.toLocaleString()}</span>
-                  <span className="text-gray-300">{bid.quantity}</span>
-                </div>
-              ))}
-            </div>
+      <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Asks */}
+        <div>
+          <h4 className="text-sm sm:text-md font-semibold text-amber-400 mb-3 flex items-center gap-2">
+            <FireIcon className="h-4 w-4" />
+            Sell Orders (Asks)
+          </h4>
+          <div className="space-y-1">
+            {selectedMarket.orderbook.asks.slice(0, 10).map((ask, index) => (
+              <div
+                key={`${ask.price}-${index}`}
+                className="flex justify-between items-center p-3 sm:p-4 bg-amber-500/5 rounded-lg hover:bg-amber-500/10 transition-all duration-300 animate-in slide-in-from-right-2 min-h-[44px]"
+              >
+                <span className={`text-amber-400 font-medium transition-all duration-300 ${
+                  priceChange.direction === 'up' ? 'animate-pulse' : ''
+                }`}>
+                  ${ask.price.toLocaleString()}
+                </span>
+                <span className="text-gray-300 transition-all duration-300">{ask.quantity.toFixed(0)}</span>
+              </div>
+            ))}
           </div>
         </div>
+        {/* Bids */}
+        <div>
+          <h4 className="text-sm sm:text-md font-semibold text-teal-400 mb-3 flex items-center gap-2">
+            <ClockIcon className="h-4 w-4" />
+            Buy Orders (Bids)
+          </h4>
+          <div className="space-y-1">
+            {selectedMarket.orderbook.bids.slice(0, 10).map((bid, index) => (
+              <div
+                key={`${bid.price}-${index}`}
+                className="flex justify-between items-center p-3 sm:p-4 bg-teal-500/5 rounded-lg hover:bg-teal-500/10 transition-all duration-300 animate-in slide-in-from-left-2 min-h-[44px]"
+              >
+                <span className={`text-teal-400 font-medium transition-all duration-300 ${
+                  priceChange.direction === 'down' ? 'animate-pulse' : ''
+                }`}>
+                  ${bid.price.toLocaleString()}
+                </span>
+                <span className="text-gray-300 transition-all duration-300">{bid.quantity.toFixed(0)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Quick Actions */}
@@ -421,8 +599,8 @@ export default function Markets() {
           <ChartBarIcon className="h-4 w-4 text-indigo-400" />
           Quick Actions
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="space-y-3">
             <input
               type="number"
               step="0.01"
@@ -430,17 +608,17 @@ export default function Markets() {
               value={buyAmount}
               onChange={e => setBuyAmount(e.target.value)}
               placeholder="Amount to buy (ETH)"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200 min-h-[48px]"
             />
             <button
               onClick={handleBuy}
               disabled={isBuyLoading || !buy || !selectedMarket}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-teal-600 hover:bg-teal-700 text-gray-100 font-semibold py-3 sm:py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] text-base"
             >
               {isBuyLoading ? 'Buying...' : `Buy ${selectedMarket.domain}`}
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <input
               type="number"
               step="0.01"
@@ -448,18 +626,62 @@ export default function Markets() {
               value={sellAmount}
               onChange={e => setSellAmount(e.target.value)}
               placeholder="Amount to sell (ETH)"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200 min-h-[48px]"
             />
             <button
               onClick={handleSell}
               disabled={isSellLoading || !sell || !selectedMarket}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-gray-100 font-semibold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-gray-100 font-semibold py-3 sm:py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] text-base"
             >
               {isSellLoading ? 'Selling...' : `Sell ${selectedMarket.domain}`}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && pendingTrade && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-sm w-full mx-4">
+            <h2 className="text-lg font-semibold mb-4 text-gray-100">Confirm {pendingTrade.type === 'buy' ? 'Buy' : 'Sell'} Trade</h2>
+            <p className="mb-6 text-gray-300">
+              Are you sure you want to {pendingTrade.type} {pendingTrade.amount} {selectedMarket.domain}?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 text-gray-200 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (pendingTrade.type === 'buy') {
+                    buy({
+                      address: contractAddress as `0x${string}`,
+                      abi: DomainFuturesABI.abi as Abi,
+                      functionName: 'openPosition',
+                      args: [parseEther(pendingTrade.amount), 1, true],
+                    });
+                  } else {
+                    sell({
+                      address: contractAddress as `0x${string}`,
+                      abi: DomainFuturesABI.abi as Abi,
+                      functionName: 'openPosition',
+                      args: [parseEther(pendingTrade.amount), 1, false],
+                    });
+                  }
+                  setShowConfirmDialog(false);
+                  setPendingTrade(null);
+                }}
+                className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 text-white transition-colors duration-200"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

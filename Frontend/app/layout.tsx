@@ -5,9 +5,15 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { Providers } from "@/lib/providers";
 import { Toaster } from 'react-hot-toast';
+import ClientLayout from "@/components/ClientLayout";
 import './globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: 'swap',
+  preload: false,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+});
 
 export const metadata: Metadata = {
   title: "DomaTrade",
@@ -23,23 +29,7 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-950">
       <body className={`${inter.className} h-full antialiased text-gray-100 bg-gradient-to-br from-gray-950 to-gray-900`}>
         <Providers>
-          <div className="flex h-full min-h-screen">
-            {/* Sidebar: Fixed on left for large screens, hidden on mobile */}
-            <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 bg-gray-800/50 backdrop-blur-md border-r border-gray-700/50 transition-all duration-300">
-              <Sidebar />
-            </div>
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col lg:ml-64">
-              {/* Header: Sticky and full-width */}
-              <Header className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-700/50" />
-              {/* Main Content: Full-width */}
-              <main className="flex-1 py-6 bg-transparent">
-                <div className="px-4 sm:px-6 lg:px-6">
-                  {children}
-                </div>
-              </main>
-            </div>
-          </div>
+          <ClientLayout>{children}</ClientLayout>
           {/* Toaster */}
           <Toaster
             position="top-right"

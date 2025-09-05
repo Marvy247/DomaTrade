@@ -28,6 +28,21 @@ export default function ActivityFeed() {
     }
   };
 
+  const getOrderTypeLabel = (orderType?: string) => {
+    switch (orderType) {
+      case 'limit':
+        return 'Limit';
+      case 'stop-loss':
+        return 'Stop Loss';
+      case 'take-profit':
+        return 'Take Profit';
+      case 'market':
+        return 'Market';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm mx-auto max-w-7xl">
       <div className="p-4 sm:p-6 border-b border-gray-700">
@@ -53,14 +68,19 @@ export default function ActivityFeed() {
                     <span className={`text-sm font-medium ${getActivityColor(activity.side)}`}>
                       {activity.domain}
                     </span>
+                    {activity.orderType && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600/20 text-indigo-300">
+                        {getOrderTypeLabel(activity.orderType)}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 mt-1 text-xs text-gray-400">
                     <span>{activity.size} ETH</span>
                     {activity.price > 0 && <span>@ ${activity.price.toLocaleString()}</span>}
                     {activity.side && (
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
-                        activity.side === 'buy' 
-                          ? 'bg-teal-600/20 text-teal-300' 
+                        activity.side === 'buy'
+                          ? 'bg-teal-600/20 text-teal-300'
                           : 'bg-amber-600/20 text-amber-300'
                       }`}>
                         {activity.side === 'buy' ? (
@@ -71,7 +91,7 @@ export default function ActivityFeed() {
                         {activity.side.toUpperCase()}
                       </span>
                     )}
-                    <span>{new Date(activity.timestamp).toLocaleTimeString()}</span>
+                    <span>{new Date(activity.timestamp).toLocaleTimeString('en-US')}</span>
                   </div>
                 </div>
               </div>

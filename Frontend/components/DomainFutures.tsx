@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { ChartBarIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import TradingChart from './TradingChart';
 import { marketsData, Market, generateOrderbook } from '@/lib/mockData';
+import { useStore } from '@/lib/store';
 
 const DOMAIN_FUTURES_ADDRESS = "0x2cb425975626593A35D570C6E0bCEe53fca1eaFE";
 
@@ -25,6 +26,19 @@ export default function DomainFutures() {
   const [isLong, setIsLong] = useState(true);
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
+  const [orderType, setOrderType] = useState<'market' | 'limit' | 'stop-loss' | 'take-profit'>('market');
+  const [limitPrice, setLimitPrice] = useState("");
+  const [stopLossPrice, setStopLossPrice] = useState("");
+  const [takeProfitPrice, setTakeProfitPrice] = useState("");
+  const [riskPercentage, setRiskPercentage] = useState("1");
+  const [stopLossDistance, setStopLossDistance] = useState("");
+  const [calculatedPositionSize, setCalculatedPositionSize] = useState("");
+  const [riskProfile, setRiskProfile] = useState<'conservative' | 'moderate' | 'aggressive'>('moderate');
+  const [accountBalance, setAccountBalance] = useState("10000");
+  const [rewardRiskRatio, setRewardRiskRatio] = useState("2");
+  const [maxDrawdown, setMaxDrawdown] = useState("5");
+  const [kellyMultiplier, setKellyMultiplier] = useState("0.5");
+  const { addOrder, addPendingOrder, addPosition, addActivity } = useStore();
 
   useEffect(() => {
     const generatedMarkets = marketsData.map(market => ({
@@ -35,19 +49,105 @@ export default function DomainFutures() {
     setSelectedMarket(generatedMarkets[0]);
   }, []);
 
+  // Risk profile presets
+  const riskProfiles = {
+    conservative: { riskPercent: 0.5, maxDrawdown: 2 },
+    moderate: { riskPercent: 1, maxDrawdown: 5 },
+    aggressive: { riskPercent: 2, maxDrawdown: 10 }
+  };
+
+  // Position size calculator
+  const calculatePositionSize = () => {
+    const collateralValue = parseFloat(collateral) || 0;
+    const riskPercent = parseFloat(riskPercentage) || 0;
+    const stopLossDist = parseFloat(stopLossDistance) || 0;
+
+    if (collateralValue > 0 && riskPercent > 0 && stopLossDist > 0) {
+      const riskAmount = collateralValue * (riskPercent / 100);
+      const positionSize = riskAmount / stopLossDist;
+      setCalculatedPositionSize(positionSize.toFixed(2));
+    }
+  };
+
+  // Advanced calculators
+  const calculateKellyCriterion = () => {
+    const winRate = 0.6; // Assume 60% win rate for demo
+    const avgWin = parseFloat(rewardRiskRatio) || 2;
+    const avgLoss = 1;
+    const kelly = (winRate / avgLoss) - ((1 - winRate) / avgWin);
+    return Math.max(0, kelly * parseFloat(kellyMultiplier));
+  };
+
+  const calculateMaxDrawdownPosition = () => {
+    const balance = parseFloat(accountBalance) || 10000;
+    const maxDD = parseFloat(maxDrawdown) || 5;
+    const riskAmount = balance * (maxDD / 100);
+    const stopLossDist = parseFloat(stopLossDistance) || 1;
+    return riskAmount / stopLossDist;
+  };
+
+  const applyRiskProfile = (profile: 'conservative' | 'moderate' | 'aggressive') => {
+    setRiskProfile(profile);
+    setRiskPercentage(riskProfiles[profile].riskPercent.toString());
+    setMaxDrawdown(riskProfiles[profile].maxDrawdown.toString());
+  };
+
+  useEffect(() => {
+    calculatePositionSize();
+  }, [collateral, riskPercentage, stopLossDistance]);
+
   const handleOpenPosition = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await writeContractAsync({
-        abi: domainFuturesABI,
-        address: DOMAIN_FUTURES_ADDRESS,
-        functionName: "openPosition",
-        args: [BigInt(collateral) * BigInt(1e6), BigInt(leverage), isLong],
-      });
-      toast.success("Position opened successfully!");
+      if (orderType === 'market') {
+        await writeContractAsync({
+          abi: domainFuturesABI,
+          address: DOMAIN_FUTURES_ADDRESS,
+          functionName: "openPosition",
+          args: [BigInt(collateral) * BigInt(1e6), BigInt(leverage), isLong],
+        });
+        addPosition({
+          domain: selectedMarket?.name || '',
+          price: 100 + Math.random() * 50, // Generate a mock price
+          size: parseFloat(collateral),
+          side: isLong ? 'buy' : 'sell',
+        });
+        addActivity({
+          domain: selectedMarket?.name || '',
+          price: 100 + Math.random() * 50, // Generate a mock price
+          size: parseFloat(collateral),
+          side: isLong ? 'buy' : 'sell',
+          orderType: 'market',
+        });
+        toast.success("Position opened successfully!");
+      } else {
+        // Handle limit, stop-loss, take-profit orders
+        const orderPrice = orderType === 'limit' ? parseFloat(limitPrice) :
+                          orderType === 'stop-loss' ? parseFloat(stopLossPrice) :
+                          parseFloat(takeProfitPrice);
+
+        if (orderType === 'limit') {
+          addPendingOrder({
+            domain: selectedMarket?.name || '',
+            type: 'limit',
+            price: orderPrice,
+            size: parseFloat(collateral),
+            side: isLong ? 'buy' : 'sell',
+          });
+        } else {
+          addOrder({
+            domain: selectedMarket?.name || '',
+            type: orderType,
+            price: orderPrice,
+            size: parseFloat(collateral),
+            side: isLong ? 'buy' : 'sell',
+          });
+        }
+        toast.success(`${orderType.replace('-', ' ')} order created successfully!`);
+      }
     } catch (error) {
-      console.error("Error opening position:", error);
-      toast.error("Failed to open position. Check console for details.");
+      console.error("Error creating order:", error);
+      toast.error("Failed to create order. Check console for details.");
     }
   };
 
@@ -92,6 +192,59 @@ export default function DomainFutures() {
                 </select>
               </div>
               <div>
+                <label htmlFor="order-type" className="block text-sm font-medium text-gray-200">Order Type</label>
+                <select
+                  id="order-type"
+                  value={orderType}
+                  onChange={(e) => setOrderType(e.target.value as typeof orderType)}
+                  className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                >
+                  <option value="market">Market Order</option>
+                  <option value="limit">Limit Order</option>
+                  <option value="stop-loss">Stop-Loss Order</option>
+                  <option value="take-profit">Take-Profit Order</option>
+                </select>
+              </div>
+              {orderType === 'limit' && (
+                <div>
+                  <label htmlFor="limit-price" className="block text-sm font-medium text-gray-200">Limit Price</label>
+                  <input
+                    id="limit-price"
+                    type="text"
+                    value={limitPrice}
+                    onChange={(e) => setLimitPrice(e.target.value)}
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    placeholder="Enter limit price"
+                  />
+                </div>
+              )}
+              {orderType === 'stop-loss' && (
+                <div>
+                  <label htmlFor="stop-loss-price" className="block text-sm font-medium text-gray-200">Stop-Loss Price</label>
+                  <input
+                    id="stop-loss-price"
+                    type="text"
+                    value={stopLossPrice}
+                    onChange={(e) => setStopLossPrice(e.target.value)}
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    placeholder="Enter stop-loss price"
+                  />
+                </div>
+              )}
+              {orderType === 'take-profit' && (
+                <div>
+                  <label htmlFor="take-profit-price" className="block text-sm font-medium text-gray-200">Take-Profit Price</label>
+                  <input
+                    id="take-profit-price"
+                    type="text"
+                    value={takeProfitPrice}
+                    onChange={(e) => setTakeProfitPrice(e.target.value)}
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    placeholder="Enter take-profit price"
+                  />
+                </div>
+              )}
+              <div>
                 <label htmlFor="collateral" className="block text-sm font-medium text-gray-200">Collateral (USDC)</label>
                 <input
                   id="collateral"
@@ -134,6 +287,117 @@ export default function DomainFutures() {
                 >
                   Short
                 </button>
+              </div>
+              <div className="border-t border-gray-600 pt-4 mt-4">
+                <h4 className="text-sm font-medium text-gray-200 mb-3">Position Sizing Tools</h4>
+
+                {/* Risk Profile Presets */}
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-gray-300 mb-2">Risk Profile</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => applyRiskProfile('conservative')}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        riskProfile === 'conservative'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Conservative
+                    </button>
+                    <button
+                      onClick={() => applyRiskProfile('moderate')}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        riskProfile === 'moderate'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Moderate
+                    </button>
+                    <button
+                      onClick={() => applyRiskProfile('aggressive')}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        riskProfile === 'aggressive'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Aggressive
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="risk-percentage" className="block text-xs font-medium text-gray-300">Risk %</label>
+                    <input
+                      id="risk-percentage"
+                      type="text"
+                      value={riskPercentage}
+                      onChange={(e) => setRiskPercentage(e.target.value)}
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      placeholder="1"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="stop-loss-distance" className="block text-xs font-medium text-gray-300">Stop Loss Distance</label>
+                    <input
+                      id="stop-loss-distance"
+                      type="text"
+                      value={stopLossDistance}
+                      onChange={(e) => setStopLossDistance(e.target.value)}
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      placeholder="10"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="account-balance" className="block text-xs font-medium text-gray-300">Account Balance</label>
+                    <input
+                      id="account-balance"
+                      type="text"
+                      value={accountBalance}
+                      onChange={(e) => setAccountBalance(e.target.value)}
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      placeholder="10000"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="max-drawdown" className="block text-xs font-medium text-gray-300">Max Drawdown %</label>
+                    <input
+                      id="max-drawdown"
+                      type="text"
+                      value={maxDrawdown}
+                      onChange={(e) => setMaxDrawdown(e.target.value)}
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      placeholder="5"
+                    />
+                  </div>
+                </div>
+
+                {/* Calculator Results */}
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {calculatedPositionSize && (
+                    <div className="p-2 bg-indigo-600/20 rounded-lg">
+                      <p className="text-xs text-gray-300">Risk-Based Position Size:</p>
+                      <p className="text-sm font-semibold text-indigo-300">{calculatedPositionSize} USDC</p>
+                    </div>
+                  )}
+                  {stopLossDistance && (
+                    <div className="p-2 bg-purple-600/20 rounded-lg">
+                      <p className="text-xs text-gray-300">Max DD Position Size:</p>
+                      <p className="text-sm font-semibold text-purple-300">{calculateMaxDrawdownPosition().toFixed(2)} USDC</p>
+                    </div>
+                  )}
+                  <div className="p-2 bg-green-600/20 rounded-lg">
+                    <p className="text-xs text-gray-300">Kelly Criterion:</p>
+                    <p className="text-sm font-semibold text-green-300">{calculateKellyCriterion().toFixed(2)} USDC</p>
+                  </div>
+                  <div className="p-2 bg-orange-600/20 rounded-lg">
+                    <p className="text-xs text-gray-300">Reward/Risk Ratio:</p>
+                    <p className="text-sm font-semibold text-orange-300">{rewardRiskRatio}:1</p>
+                  </div>
+                </div>
               </div>
               <button
                 type="submit"
