@@ -119,6 +119,37 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
 
   return (
     <>
+      {/* Current Market Display */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-100">
+              {currentMarket.charAt(0).toUpperCase() + currentMarket.slice(1).replace('.eth', '')}
+              <span className="text-sm font-normal text-indigo-400 ml-2">.eth</span>
+            </h2>
+            <div className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded">
+              Domain Futures
+            </div>
+          </div>
+          <select
+            value={currentMarket}
+            onChange={(e) => setCurrentMarket(e.target.value)}
+            className="bg-gray-700 text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+          >
+            {[
+              'crypto.eth', 'defi.eth', 'nft.eth', 'game.eth', 'metaverse.eth',
+              'ai.eth', 'web3.eth', 'dao.eth', 'yield.eth', 'social.eth',
+              'music.eth', 'art.eth', 'sports.eth', 'finance.eth', 'tech.eth'
+            ].map((domain) => (
+              <option key={domain} value={domain}>
+                {domain}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Timeframe Buttons */}
       <div className="mb-4 flex flex-wrap gap-2">
         {['1m', '5m', '1H', '1D', '1W'].map((tf) => (
           <button
@@ -132,23 +163,7 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
           </button>
         ))}
       </div>
-      <div className="mb-4">
-        <select
-          value={currentMarket}
-          onChange={(e) => setCurrentMarket(e.target.value)}
-          className="bg-gray-700 text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
-        >
-          {[
-            'crypto.eth', 'defi.eth', 'nft.eth', 'game.eth', 'metaverse.eth',
-            'ai.eth', 'web3.eth', 'dao.eth', 'yield.eth', 'social.eth',
-            'music.eth', 'art.eth', 'sports.eth', 'finance.eth', 'tech.eth'
-          ].map((domain) => (
-            <option key={domain} value={domain}>
-              {domain}
-            </option>
-          ))}
-        </select>
-      </div>
+
       <div ref={chartContainerRef} className="w-full h-[300px] sm:h-[400px] lg:h-[500px]" />
     </>
   );
