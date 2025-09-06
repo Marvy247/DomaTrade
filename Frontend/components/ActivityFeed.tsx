@@ -1,6 +1,6 @@
 'use client';
 
-import { useStore } from '../lib/store';
+import { useStore } from '@/lib/store';
 import { ArrowUpIcon, ArrowDownIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
 
 export default function ActivityFeed() {

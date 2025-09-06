@@ -1,11 +1,11 @@
 "use client";
 
-import { useAccount, useBalance, useWriteContract } from "wagmi";
-import { collateralVaultABI } from "@/lib/abi/collateral-vault";
-import { mockUSDCABI } from "@/lib/abi/mock-usdc";
+import { useAccount, useBalance, useWriteContract, useReadContract } from "wagmi";
+import { collateralVaultABI } from "../lib/abi/collateral-vault";
+import { mockUSDCABI } from "../lib/abi/mock-usdc";
 import { FormEvent, useState } from "react";
 import toast from 'react-hot-toast';
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/solid';
+import { ArrowDownIcon, ArrowUpIcon, BanknotesIcon, ShieldCheckIcon, ChartBarIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/solid';
 
 const MOCK_USDC_ADDRESS = "0x7880dd858Bedfb3Acc34006d7Ab96b3c152DF9DF";
 const COLLATERAL_VAULT_ADDRESS = "0x1E967705de6B18F8FC0b15697C86Fbe6010bE581";
@@ -17,6 +17,14 @@ export function CollateralVault() {
     token: MOCK_USDC_ADDRESS,
   });
   const { writeContractAsync } = useWriteContract();
+
+  // Mock vault statistics for better UI
+  const vaultStats = {
+    totalDeposited: "12500.00",
+    availableToWithdraw: "8500.00",
+    interestEarned: "245.67",
+    utilizationRate: "68%"
+  };
 
   const [amount, setAmount] = useState("");
   const [action, setAction] = useState("deposit");
@@ -54,62 +62,164 @@ export function CollateralVault() {
   };
 
   return (
-    <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
-      <div className="p-6 border-b border-gray-700">
-        <h3 className="text-xl font-semibold text-gray-100 flex items-center gap-2">
-          <ArrowDownIcon className="h-5 w-5 text-indigo-400" />
-          Collateral Vault
-        </h3>
-        <p className="text-sm text-gray-400 mt-1">Balance: {balance?.formatted || '0.0'} USDC</p>
-      </div>
-      <div className="p-6">
-        <div className="flex border-b border-gray-700 mb-6">
-          <button
-            onClick={() => setAction('deposit')}
-            className={`flex-1 py-2 text-sm font-semibold transition-colors duration-200 ${
-              action === 'deposit'
-                ? 'border-b-2 border-indigo-400 text-indigo-400'
-                : 'text-gray-400 hover:text-gray-100 hover:bg-gray-700/50'
-            }`}
-          >
-            <ArrowDownIcon className="h-5 w-5 inline mr-2" />
-            Deposit
-          </button>
-          <button
-            onClick={() => setAction('withdraw')}
-            className={`flex-1 py-2 text-sm font-semibold transition-colors duration-200 ${
-              action === 'withdraw'
-                ? 'border-b-2 border-indigo-400 text-indigo-400'
-                : 'text-gray-400 hover:text-gray-100 hover:bg-gray-700/50'
-            }`}
-          >
-            <ArrowUpIcon className="h-5 w-5 inline mr-2" />
-            Withdraw
-          </button>
-        </div>
-        <form onSubmit={handleAction} className="flex flex-col gap-y-4">
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-200">Amount (USDC)</label>
-            <input
-              id="amount"
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
-              placeholder="0.0"
-            />
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Vault Header */}
+      <div className="bg-gradient-to-r from-slate-900/80 to-gray-900/80 border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-indigo-600/20 rounded-xl">
+                <BanknotesIcon className="h-8 w-8 text-indigo-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-100">Secure Collateral Vault</h1>
+                <p className="text-gray-400 text-sm">Your digital asset fortress</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-gray-400 uppercase tracking-wide">Vault Status</div>
+              <div className="flex items-center gap-2">
+                <ShieldCheckIcon className="h-4 w-4 text-green-400" />
+                <span className="text-green-400 font-semibold">Protected</span>
+              </div>
+            </div>
           </div>
-          <button
-            type="submit"
-            className={`w-full text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
-              action === 'deposit'
-                ? 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-400'
-                : 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-400'
-            }`}
-          >
-            {action === 'deposit' ? 'Deposit' : 'Withdraw'}
-          </button>
-        </form>
+        </div>
+
+        {/* Vault Statistics */}
+        <div className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <CurrencyDollarIcon className="h-4 w-4 text-indigo-400" />
+                <span className="text-xs text-gray-400 uppercase">Total Deposited</span>
+              </div>
+              <div className="text-xl font-bold text-gray-100">${vaultStats.totalDeposited}</div>
+            </div>
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <ArrowUpIcon className="h-4 w-4 text-green-400" />
+                <span className="text-xs text-gray-400 uppercase">Available</span>
+              </div>
+              <div className="text-xl font-bold text-gray-100">${vaultStats.availableToWithdraw}</div>
+            </div>
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <ChartBarIcon className="h-4 w-4 text-purple-400" />
+                <span className="text-xs text-gray-400 uppercase">Interest Earned</span>
+              </div>
+              <div className="text-xl font-bold text-green-400">+${vaultStats.interestEarned}</div>
+            </div>
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <ClockIcon className="h-4 w-4 text-orange-400" />
+                <span className="text-xs text-gray-400 uppercase">Utilization</span>
+              </div>
+              <div className="text-xl font-bold text-gray-100">{vaultStats.utilizationRate}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Panel */}
+      <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
+        <div className="p-6">
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-gray-900/50 rounded-lg p-1 flex">
+              <button
+                onClick={() => setAction('deposit')}
+                className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
+                  action === 'deposit'
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-700/50'
+                }`}
+              >
+                <ArrowDownIcon className="h-4 w-4" />
+                Deposit
+              </button>
+              <button
+                onClick={() => setAction('withdraw')}
+                className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
+                  action === 'withdraw'
+                    ? 'bg-amber-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-700/50'
+                }`}
+              >
+                <ArrowUpIcon className="h-4 w-4" />
+                Withdraw
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleAction} className="max-w-md mx-auto space-y-4">
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-200 mb-2">
+                Amount (USDC)
+              </label>
+              <div className="relative">
+                <input
+                  id="amount"
+                  type="text"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full bg-gray-900/50 border border-gray-600 rounded-lg py-3 px-4 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-200 text-lg"
+                  placeholder="0.00"
+                />
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
+                  USDC
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Available: {balance?.formatted || '0.00'} USDC
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              className={`w-full text-white font-semibold py-3 px-6 rounded-lg shadow-lg focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 ${
+                action === 'deposit'
+                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:ring-indigo-400'
+                  : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 focus:ring-amber-400'
+              }`}
+            >
+              {action === 'deposit' ? 'Deposit Funds' : 'Withdraw Funds'}
+            </button>
+          </form>
+
+          {/* Recent Activity */}
+          <div className="mt-8 pt-6 border-t border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <ClockIcon className="h-5 w-5 text-indigo-400" />
+              Recent Activity
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-600/20 rounded-full flex items-center justify-center">
+                    <ArrowDownIcon className="h-4 w-4 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-100">Deposit</p>
+                    <p className="text-xs text-gray-400">2 hours ago</p>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-green-400">+1,000 USDC</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-600/20 rounded-full flex items-center justify-center">
+                    <ChartBarIcon className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-100">Interest Earned</p>
+                    <p className="text-xs text-gray-400">1 day ago</p>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-blue-400">+12.45 USDC</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
