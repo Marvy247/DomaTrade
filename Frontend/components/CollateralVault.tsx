@@ -46,6 +46,7 @@ export function CollateralVault() {
           args: [BigInt(amount) * BigInt(1e6)],
         });
         toast.success("Deposit successful!");
+        setAmount("");
       } else {
         await writeContractAsync({
           abi: collateralVaultABI,
@@ -54,6 +55,7 @@ export function CollateralVault() {
           args: [BigInt(amount) * BigInt(1e6)],
         });
         toast.success("Withdrawal successful!");
+        setAmount("");
       }
     } catch (error) {
       console.error(`Error during ${action}:`, error);

@@ -230,7 +230,7 @@ export default function Markets() {
       setMarkets(prevMarkets =>
         prevMarkets.map(market => {
           const oldPrice = market.price;
-          const newPrice = market.price * (1 + (Math.random() - 0.5) * 0.01);
+          const newPrice = market.price * (1 + (Math.random() - 0.5) * 0.02);
           const priceDiff = newPrice - oldPrice;
 
           // Update price change indicator
@@ -284,7 +284,7 @@ export default function Markets() {
 
       // Reset price change indicator after animation
       setTimeout(() => setPriceChange({ direction: 'neutral', amount: 0 }), 1000);
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearInterval(interval);

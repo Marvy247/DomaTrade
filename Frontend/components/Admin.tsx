@@ -36,6 +36,7 @@ export default function Admin() {
         args: [DOMAIN_ID, BigInt(scaledPrice)],
       });
       toast.success("Price updated successfully!");
+      setPrice("");
     } catch (error) {
       console.error("Error setting price:", error);
       toast.error("Failed to set price. Check console for details.");
@@ -58,6 +59,7 @@ export default function Admin() {
         args: [userToLiquidate as `0x${string}`],
       });
       toast.success("User liquidated successfully!");
+      setUserToLiquidate("0x");
     } catch (error) {
       console.error("Error liquidating user:", error);
       toast.error("Failed to liquidate user. Check console for details.");

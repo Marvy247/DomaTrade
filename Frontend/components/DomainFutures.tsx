@@ -38,6 +38,9 @@ export default function DomainFutures() {
   const [rewardRiskRatio, setRewardRiskRatio] = useState("2");
   const [maxDrawdown, setMaxDrawdown] = useState("5");
   const [kellyMultiplier, setKellyMultiplier] = useState("0.5");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { addOrder, addPendingOrder, addPosition, addActivity } = useStore();
 
   useEffect(() => {
@@ -96,8 +99,26 @@ export default function DomainFutures() {
     calculatePositionSize();
   }, [collateral, riskPercentage, stopLossDistance]);
 
-  const handleOpenPosition = async (e: FormEvent) => {
+  const handleOpenPosition = (e: FormEvent) => {
     e.preventDefault();
+    const orderData = {
+      orderType,
+      collateral,
+      leverage,
+      isLong,
+      limitPrice,
+      stopLossPrice,
+      takeProfitPrice,
+      selectedMarket: selectedMarket?.name || '',
+    };
+    setPendingOrderData(orderData);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmOpenPosition = async () => {
+    if (!pendingOrderData) return;
+    const { orderType, collateral, leverage, isLong, limitPrice, stopLossPrice, takeProfitPrice, selectedMarket } = pendingOrderData;
+    setIsSubmitting(true);
     try {
       if (orderType === 'market') {
         await writeContractAsync({
@@ -107,19 +128,34 @@ export default function DomainFutures() {
           args: [BigInt(collateral) * BigInt(1e6), BigInt(leverage), isLong],
         });
         addPosition({
-          domain: selectedMarket?.name || '',
+          domain: selectedMarket,
           price: 100 + Math.random() * 50, // Generate a mock price
           size: parseFloat(collateral),
           side: isLong ? 'buy' : 'sell',
         });
         addActivity({
-          domain: selectedMarket?.name || '',
+          domain: selectedMarket,
           price: 100 + Math.random() * 50, // Generate a mock price
           size: parseFloat(collateral),
           side: isLong ? 'buy' : 'sell',
           orderType: 'market',
         });
         toast.success("Position opened successfully!");
+        setIsSubmitting(false);
+        setShowConfirmDialog(false);
+        setPendingOrderData(null);
+        // Reset input fields after successful submission
+        setCollateral("");
+        setLimitPrice("");
+        setStopLossPrice("");
+        setTakeProfitPrice("");
+        setRiskPercentage("1");
+        setStopLossDistance("");
+        setAccountBalance("10000");
+        setRewardRiskRatio("2");
+        setMaxDrawdown("5");
+        setKellyMultiplier("0.5");
+        setCalculatedPositionSize("");
       } else {
         // Handle limit, stop-loss, take-profit orders
         const orderPrice = orderType === 'limit' ? parseFloat(limitPrice) :
@@ -128,7 +164,7 @@ export default function DomainFutures() {
 
         if (orderType === 'limit') {
           addPendingOrder({
-            domain: selectedMarket?.name || '',
+            domain: selectedMarket,
             type: 'limit',
             price: orderPrice,
             size: parseFloat(collateral),
@@ -136,7 +172,7 @@ export default function DomainFutures() {
           });
         } else {
           addOrder({
-            domain: selectedMarket?.name || '',
+            domain: selectedMarket,
             type: orderType,
             price: orderPrice,
             size: parseFloat(collateral),
@@ -144,10 +180,28 @@ export default function DomainFutures() {
           });
         }
         toast.success(`${orderType.replace('-', ' ')} order created successfully!`);
+        setIsSubmitting(false);
+        setShowConfirmDialog(false);
+        setPendingOrderData(null);
+        // Reset input fields after successful submission
+        setCollateral("");
+        setLimitPrice("");
+        setStopLossPrice("");
+        setTakeProfitPrice("");
+        setRiskPercentage("1");
+        setStopLossDistance("");
+        setAccountBalance("10000");
+        setRewardRiskRatio("2");
+        setMaxDrawdown("5");
+        setKellyMultiplier("0.5");
+        setCalculatedPositionSize("");
       }
     } catch (error) {
       console.error("Error creating order:", error);
       toast.error("Failed to create order. Check console for details.");
+      setIsSubmitting(false);
+      setShowConfirmDialog(false);
+      setPendingOrderData(null);
     }
   };
 
@@ -296,6 +350,7 @@ export default function DomainFutures() {
                   <label className="block text-xs font-medium text-gray-300 mb-2">Risk Profile</label>
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => applyRiskProfile('conservative')}
                       className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                         riskProfile === 'conservative'
@@ -306,6 +361,7 @@ export default function DomainFutures() {
                       Conservative
                     </button>
                     <button
+                      type="button"
                       onClick={() => applyRiskProfile('moderate')}
                       className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                         riskProfile === 'moderate'
@@ -316,6 +372,7 @@ export default function DomainFutures() {
                       Moderate
                     </button>
                     <button
+                      type="button"
                       onClick={() => applyRiskProfile('aggressive')}
                       className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                         riskProfile === 'aggressive'
@@ -400,7 +457,8 @@ export default function DomainFutures() {
                 </div>
               </div>
               <button
-                type="submit"
+                type="button"
+                onClick={handleOpenPosition}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors duration-200"
               >
                 Open Position
@@ -507,6 +565,40 @@ export default function DomainFutures() {
               >
                 <XCircleIcon className="h-5 w-5" />
                 Close Position
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && pendingOrderData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-semibold mb-4 text-gray-100">Confirm Trade</h2>
+            <div className="mb-4 text-gray-300">
+              <p><strong>Market:</strong> {pendingOrderData.selectedMarket}</p>
+              <p><strong>Order Type:</strong> {pendingOrderData.orderType}</p>
+              <p><strong>Side:</strong> {pendingOrderData.isLong ? 'Long' : 'Short'}</p>
+              <p><strong>Collateral:</strong> {pendingOrderData.collateral} USDC</p>
+              <p><strong>Leverage:</strong> {pendingOrderData.leverage}x</p>
+              {pendingOrderData.orderType === 'limit' && <p><strong>Limit Price:</strong> {pendingOrderData.limitPrice}</p>}
+              {pendingOrderData.orderType === 'stop-loss' && <p><strong>Stop-Loss Price:</strong> {pendingOrderData.stopLossPrice}</p>}
+              {pendingOrderData.orderType === 'take-profit' && <p><strong>Take-Profit Price:</strong> {pendingOrderData.takeProfitPrice}</p>}
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 text-gray-200 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmOpenPosition}
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Processing...' : 'Confirm'}
               </button>
             </div>
           </div>
