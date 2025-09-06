@@ -11,7 +11,7 @@ export default function NotFound() {
         <p className="text-lg text-gray-400 mb-6">Could not find the requested resource.</p>
         <Link
           href="/"
-          className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-gray-100 font-semibold rounded-lg shadow-md transition-colors duration-200"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-100 font-semibold rounded-lg shadow-md transition-colors duration-200"
         >
           <HomeIcon className="h-4 w-4 mr-2 text-teal-400" aria-hidden="true" />
           Return Home

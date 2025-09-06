@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="grid grid-cols-1 gap-6 p-4 sm:p-5 lg:p-6 lg:pl-4 bg-transparent min-h-screen">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-indigo-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-6 shadow-xl backdrop-blur-sm">
+      <div className="bg-gradient-to-r from-blue-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-6 shadow-xl backdrop-blur-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-100">
@@ -51,7 +51,7 @@ export default function Home() {
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700/50 transition-all duration-300 hover:shadow-xl flex-1 overflow-y-auto flex flex-col min-h-[300px] mt-10">
             <div className="sticky top-0 z-10 bg-gray-800/80 border-b border-gray-700 p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
-                <svg className="h-4 w-4 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="h-4 w-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3"></path>
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
                 </svg>

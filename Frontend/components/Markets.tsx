@@ -400,12 +400,12 @@ export default function Markets() {
   return (
     <div className="space-y-6 max-w-full mx-auto">
       {/* Market Overview Header */}
-      <div className="bg-gradient-to-r from-indigo-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
+      <div className="bg-gradient-to-r from-blue-900/20 to-teal-900/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-100 flex items-center gap-2">
               {selectedMarket.domain}
-              <span className="text-xs sm:text-sm font-normal bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded">
+              <span className="text-xs sm:text-sm font-normal bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
                 {selectedMarket.tld}
               </span>
             </h1>
@@ -474,7 +474,7 @@ export default function Markets() {
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
-            <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+            <ChartBarIcon className="h-4 w-4 text-blue-400" />
             Domain Markets
           </h3>
           <div className="flex gap-2">
@@ -483,7 +483,7 @@ export default function Markets() {
                 key={tf}
                 onClick={() => setTimeframe(tf as '1H' | '24H' | '7D')}
                 className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg transition-colors duration-200 ${
-                  timeframe === tf ? 'bg-indigo-600 text-gray-100' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  timeframe === tf ? 'bg-blue-600 text-gray-100' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
                 {tf}
@@ -498,8 +498,8 @@ export default function Markets() {
               onClick={() => setSelectedMarket(market)}
               className={`p-3 rounded-lg border transition-all duration-200 ${
                 selectedMarket && selectedMarket.domain === market.domain
-                  ? 'border-indigo-400 bg-indigo-900/20'
-                  : 'border-gray-700 bg-gray-800/50 hover:border-indigo-500 hover:bg-indigo-900/10'
+                  ? 'border-blue-400 bg-blue-900/20'
+                  : 'border-gray-700 bg-gray-800/50 hover:border-blue-500 hover:bg-blue-900/10'
               }`}
             >
               <div className="text-xs sm:text-sm font-semibold text-gray-100">{market.domain}</div>
@@ -525,7 +525,7 @@ export default function Markets() {
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
         <div className="p-4 sm:p-6 border-b border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+            <ChartBarIcon className="h-4 w-4 text-blue-400" />
             <h3 className="text-lg sm:text-xl font-semibold text-gray-100">Live Order Book</h3>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
@@ -596,7 +596,7 @@ export default function Markets() {
       {/* Quick Actions */}
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-100 mb-4 flex items-center gap-2">
-          <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+          <ChartBarIcon className="h-4 w-4 text-blue-400" />
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -608,7 +608,7 @@ export default function Markets() {
               value={buyAmount}
               onChange={e => setBuyAmount(e.target.value)}
               placeholder="Amount to buy (ETH)"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200 min-h-[48px]"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200 min-h-[48px]"
             />
             <button
               onClick={handleBuy}
@@ -626,7 +626,7 @@ export default function Markets() {
               value={sellAmount}
               onChange={e => setSellAmount(e.target.value)}
               placeholder="Amount to sell (ETH)"
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200 min-h-[48px]"
+              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 text-base focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200 min-h-[48px]"
             />
             <button
               onClick={handleSell}
@@ -674,7 +674,7 @@ export default function Markets() {
                   setShowConfirmDialog(false);
                   setPendingTrade(null);
                 }}
-                className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 text-white transition-colors duration-200"
+                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white transition-colors duration-200"
               >
                 Confirm
               </button>

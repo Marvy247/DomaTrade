@@ -65,11 +65,11 @@ export function CollateralVault() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Vault Header */}
       <div className="bg-gradient-to-r from-slate-900/80 to-gray-900/80 border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-6">
+        <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-600/20 rounded-xl">
-                <BanknotesIcon className="h-8 w-8 text-indigo-400" />
+              <div className="p-3 bg-blue-600/20 rounded-xl">
+                <BanknotesIcon className="h-8 w-8 text-blue-400" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-100">Secure Collateral Vault</h1>
@@ -91,7 +91,7 @@ export function CollateralVault() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
               <div className="flex items-center gap-2 mb-2">
-                <CurrencyDollarIcon className="h-4 w-4 text-indigo-400" />
+                <CurrencyDollarIcon className="h-4 w-4 text-blue-400" />
                 <span className="text-xs text-gray-400 uppercase">Total Deposited</span>
               </div>
               <div className="text-xl font-bold text-gray-100">${vaultStats.totalDeposited}</div>
@@ -130,7 +130,7 @@ export function CollateralVault() {
                 onClick={() => setAction('deposit')}
                 className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
                   action === 'deposit'
-                    ? 'bg-indigo-600 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white shadow-lg'
                     : 'text-gray-400 hover:text-gray-100 hover:bg-gray-700/50'
                 }`}
               >
@@ -162,7 +162,7 @@ export function CollateralVault() {
                   type="text"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-gray-900/50 border border-gray-600 rounded-lg py-3 px-4 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-200 text-lg"
+                  className="w-full bg-gray-900/50 border border-gray-600 rounded-lg py-3 px-4 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-lg"
                   placeholder="0.00"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
@@ -178,7 +178,7 @@ export function CollateralVault() {
               type="submit"
               className={`w-full text-white font-semibold py-3 px-6 rounded-lg shadow-lg focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 ${
                 action === 'deposit'
-                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:ring-indigo-400'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-400'
                   : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 focus:ring-amber-400'
               }`}
             >
@@ -189,7 +189,7 @@ export function CollateralVault() {
           {/* Recent Activity */}
           <div className="mt-8 pt-6 border-t border-gray-700">
             <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-              <ClockIcon className="h-5 w-5 text-indigo-400" />
+              <ClockIcon className="h-5 w-5 text-blue-400" />
               Recent Activity
             </h3>
             <div className="space-y-3">

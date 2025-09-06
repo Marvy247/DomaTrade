@@ -111,7 +111,7 @@ export default function Positions() {
                       <span>{position.stopLoss !== undefined ? `$${position.stopLoss.toLocaleString()}` : '-'}</span>
                       <button
                         onClick={() => handleEditSLTP(position)}
-                        className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
                         title="Edit Stop Loss"
                       >
                         <PencilIcon className="h-3 w-3" />
@@ -123,7 +123,7 @@ export default function Positions() {
                       <span>{position.takeProfit !== undefined ? `$${position.takeProfit.toLocaleString()}` : '-'}</span>
                       <button
                         onClick={() => handleEditSLTP(position)}
-                        className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
                         title="Edit Take Profit"
                       >
                         <PencilIcon className="h-3 w-3" />
@@ -189,7 +189,7 @@ export default function Positions() {
               </button>
               <button
                 onClick={handleSaveSLTP}
-                className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 text-gray-100"
+                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-gray-100"
               >
                 Save
               </button>

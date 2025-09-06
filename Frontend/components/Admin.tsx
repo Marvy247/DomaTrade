@@ -68,7 +68,7 @@ export default function Admin() {
     <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
       <div className="p-6 border-b border-gray-700">
         <h3 className="text-xl font-semibold text-gray-100 flex items-center gap-2">
-          <ShieldCheckIcon className="h-5 w-5 text-indigo-400" />
+          <ShieldCheckIcon className="h-5 w-5 text-blue-400" />
           Admin Panel
         </h3>
         <p className="text-sm text-gray-400 mt-1">Manage system settings (authorized users only)</p>
@@ -82,13 +82,13 @@ export default function Admin() {
               type="text"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+              className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
               placeholder="Enter price (e.g., 100.50)"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 transition-colors duration-200"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors duration-200"
           >
             Set Price
           </button>

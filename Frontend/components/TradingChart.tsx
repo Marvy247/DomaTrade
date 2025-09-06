@@ -138,7 +138,7 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
           <div className="flex items-center gap-3">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-100">
               {currentMarket.charAt(0).toUpperCase() + currentMarket.slice(1).replace('.eth', '')}
-              <span className="text-sm font-normal text-indigo-400 ml-2">.eth</span>
+              <span className="text-sm font-normal text-blue-400 ml-2">.eth</span>
             </h2>
             <div className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded">
               Domain Futures
@@ -147,7 +147,7 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
           <select
             value={currentMarket}
             onChange={(e) => setCurrentMarket(e.target.value)}
-            className="bg-gray-700 text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+            className="bg-gray-700 text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
           >
             {[
               'crypto.eth', 'defi.eth', 'nft.eth', 'game.eth', 'metaverse.eth',
@@ -169,7 +169,7 @@ export default function TradingChart({ selectedMarket = 'crypto.eth', timeframe 
             key={tf}
             onClick={() => setCurrentTimeframe(tf)}
             className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center ${
-              currentTimeframe === tf ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              currentTimeframe === tf ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
             {tf}

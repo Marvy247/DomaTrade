@@ -42,7 +42,7 @@ export default function CompetitionLeaderboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-700 text-indigo-400">
+              <tr className="border-b border-gray-700 text-blue-400">
                 <th className="pb-3 px-2 sm:px-4 font-medium text-center">Rank</th>
                 <th className="pb-3 px-2 sm:px-4 font-medium">User</th>
                 <th className="pb-3 px-2 sm:px-4 font-medium text-right">PnL (USD)</th>

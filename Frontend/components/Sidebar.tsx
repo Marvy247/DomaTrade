@@ -101,7 +101,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
                     : 'text-gray-400 hover:bg-gray-700/50 hover:text-gray-100'
                 }`}
               >

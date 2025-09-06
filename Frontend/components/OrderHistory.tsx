@@ -73,14 +73,14 @@ export default function OrderHistory() {
       <div className="p-4 sm:p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
-            <ClockIcon className="h-4 w-4 text-indigo-400" />
+            <ClockIcon className="h-4 w-4 text-blue-400" />
             Order History
           </h3>
           <div className="flex items-center gap-4">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as typeof filter)}
-              className="bg-gray-800 border border-gray-600 rounded-lg py-1 px-3 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+              className="bg-gray-800 border border-gray-600 rounded-lg py-1 px-3 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
             >
               <option value="all">All Orders</option>
               <option value="pending">Pending</option>
@@ -90,7 +90,7 @@ export default function OrderHistory() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="bg-gray-800 border border-gray-600 rounded-lg py-1 px-3 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+              className="bg-gray-800 border border-gray-600 rounded-lg py-1 px-3 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
             >
               <option value="date">Sort by Date</option>
               <option value="price">Sort by Price</option>

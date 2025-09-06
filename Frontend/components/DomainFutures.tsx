@@ -182,7 +182,7 @@ export default function DomainFutures() {
                 <label htmlFor="market-select" className="text-sm font-medium text-gray-300">Market:</label>
                 <select
                   id="market-select"
-                  className="bg-gray-900 border border-gray-700 text-gray-100 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                  className="bg-gray-900 border border-gray-700 text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   onChange={(e) => setSelectedMarket(markets.find(m => m.name === e.target.value)!)}
                   value={selectedMarket.name}
                 >
@@ -197,7 +197,7 @@ export default function DomainFutures() {
                   id="order-type"
                   value={orderType}
                   onChange={(e) => setOrderType(e.target.value as typeof orderType)}
-                  className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                  className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                 >
                   <option value="market">Market Order</option>
                   <option value="limit">Limit Order</option>
@@ -213,7 +213,7 @@ export default function DomainFutures() {
                     type="text"
                     value={limitPrice}
                     onChange={(e) => setLimitPrice(e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                     placeholder="Enter limit price"
                   />
                 </div>
@@ -226,7 +226,7 @@ export default function DomainFutures() {
                     type="text"
                     value={stopLossPrice}
                     onChange={(e) => setStopLossPrice(e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                     placeholder="Enter stop-loss price"
                   />
                 </div>
@@ -239,7 +239,7 @@ export default function DomainFutures() {
                     type="text"
                     value={takeProfitPrice}
                     onChange={(e) => setTakeProfitPrice(e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                    className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                     placeholder="Enter take-profit price"
                   />
                 </div>
@@ -251,7 +251,7 @@ export default function DomainFutures() {
                   type="text"
                   value={collateral}
                   onChange={(e) => setCollateral(e.target.value)}
-                  className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                  className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-gray-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                   placeholder="1000"
                 />
               </div>
@@ -336,7 +336,7 @@ export default function DomainFutures() {
                       type="text"
                       value={riskPercentage}
                       onChange={(e) => setRiskPercentage(e.target.value)}
-                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                       placeholder="1"
                     />
                   </div>
@@ -347,7 +347,7 @@ export default function DomainFutures() {
                       type="text"
                       value={stopLossDistance}
                       onChange={(e) => setStopLossDistance(e.target.value)}
-                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                       placeholder="10"
                     />
                   </div>
@@ -358,7 +358,7 @@ export default function DomainFutures() {
                       type="text"
                       value={accountBalance}
                       onChange={(e) => setAccountBalance(e.target.value)}
-                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                       placeholder="10000"
                     />
                   </div>
@@ -369,7 +369,7 @@ export default function DomainFutures() {
                       type="text"
                       value={maxDrawdown}
                       onChange={(e) => setMaxDrawdown(e.target.value)}
-                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors duration-200"
+                      className="mt-1 block w-full bg-gray-800 border border-gray-600 rounded-lg py-1.5 px-2 text-gray-100 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
                       placeholder="5"
                     />
                   </div>
@@ -378,9 +378,9 @@ export default function DomainFutures() {
                 {/* Calculator Results */}
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {calculatedPositionSize && (
-                    <div className="p-2 bg-indigo-600/20 rounded-lg">
+                    <div className="p-2 bg-blue-600/20 rounded-lg">
                       <p className="text-xs text-gray-300">Risk-Based Position Size:</p>
-                      <p className="text-sm font-semibold text-indigo-300">{calculatedPositionSize} USDC</p>
+                      <p className="text-sm font-semibold text-blue-300">{calculatedPositionSize} USDC</p>
                     </div>
                   )}
                   {stopLossDistance && (
@@ -401,7 +401,7 @@ export default function DomainFutures() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 transition-colors duration-200"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-md focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors duration-200"
               >
                 Open Position
               </button>
@@ -413,7 +413,7 @@ export default function DomainFutures() {
         <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm h-full">
           <div className="p-6 border-b border-gray-700">
             <h3 className="text-xl font-semibold text-gray-100 flex items-center gap-2">
-              <ChartBarIcon className="h-5 w-5 text-indigo-400" />
+              <ChartBarIcon className="h-5 w-5 text-blue-400" />
               {selectedMarket.name} Chart
             </h3>
           </div>

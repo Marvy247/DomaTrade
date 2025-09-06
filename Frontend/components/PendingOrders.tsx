@@ -105,7 +105,7 @@ export default function PendingOrders() {
                     <>
                       <button
                         onClick={() => startEditing(order)}
-                        className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
                         aria-label="Edit order"
                       >
                         <PencilIcon className="h-5 w-5" />

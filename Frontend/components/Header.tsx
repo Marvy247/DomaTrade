@@ -48,7 +48,7 @@ export default function Header({ className }: { className?: string }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
           <ArrowTrendingUpIcon className="h-4 w-4 text-gray-100" />
         </div>
         <span className="text-base sm:text-lg font-semibold text-gray-100">DomaTrade</span>
@@ -57,7 +57,7 @@ export default function Header({ className }: { className?: string }) {
       {/* Hamburger Menu Button (Mobile Only) */}
       <button
         type="button"
-        className="lg:hidden text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-3 transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        className="lg:hidden text-gray-300 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg p-3 transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         aria-label="Toggle navigation menu"
       >
@@ -94,7 +94,7 @@ export default function Header({ className }: { className?: string }) {
           <span className="text-base sm:text-lg font-semibold text-gray-100">Menu</span>
           <button
             type="button"
-            className="text-gray-300 hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-2"
+            className="text-gray-300 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg p-2"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close navigation menu"
           >
@@ -110,7 +110,7 @@ export default function Header({ className }: { className?: string }) {
                 e.preventDefault();
                 handleNavigation(item.href);
               }}
-              className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-indigo-600/20 hover:text-indigo-400 rounded-lg transition-all duration-200 text-xs sm:text-sm"
+              className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-blue-600/20 hover:text-blue-400 rounded-lg transition-all duration-200 text-xs sm:text-sm"
             >
               <item.icon className="h-4 w-4 flex-shrink-0" />
               <span className="font-medium">{item.label}</span>

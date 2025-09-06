@@ -58,7 +58,7 @@ export default function PortfolioAnalytics() {
       {/* Header */}
       <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm p-6">
         <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-          <ChartBarIcon className="h-6 w-6 text-indigo-400" />
+          <ChartBarIcon className="h-6 w-6 text-blue-400" />
           Portfolio Analytics
         </h2>
         <p className="text-gray-400 mt-1">Comprehensive analysis of your trading performance</p>
@@ -130,7 +130,7 @@ export default function PortfolioAnalytics() {
                   key={tf}
                   onClick={() => setTimeframe(tf)}
                   className={`px-3 py-1 rounded text-sm ${
-                    timeframe === tf ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+                    timeframe === tf ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
                   }`}
                 >
                   {tf}

@@ -36,7 +36,7 @@ export default function ETFOptions() {
     <div className="bg-gray-800/20 border border-gray-700 rounded-xl shadow-xl backdrop-blur-sm">
       <div className="p-4 sm:p-6 border-b border-gray-700">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
-          <ChartPieIcon className="h-5 w-5 text-indigo-400" />
+          <ChartPieIcon className="h-5 w-5 text-blue-400" />
           ETF Whitelisted Options
         </h3>
         <p className="text-xs sm:text-sm text-gray-400 mt-1">High-yield domain ETF pools with competitive returns</p>
@@ -50,7 +50,7 @@ export default function ETFOptions() {
               onClick={() => setSelectedCategory(category)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
                 selectedCategory === category
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
@@ -97,7 +97,7 @@ export default function ETFOptions() {
                     <ShieldCheckIcon className="h-4 w-4 text-green-400" />
                     <span className="text-xs text-gray-400">Whitelisted</span>
                   </div>
-                  <button className="px-3 py-1 bg-indigo-600 text-white text-xs rounded-full hover:bg-indigo-700 transition-colors">
+                  <button className="px-3 py-1 bg-blue-600 text-white text-xs rounded-full hover:bg-blue-700 transition-colors">
                     Invest
                   </button>
                 </div>
