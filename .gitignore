@@ -8,12 +8,6 @@ coverage/
 *.lcov
 .nyc_output
 
-# Production builds
-build/
-dist/
-.next/
-out/
-
 # Environment variables
 .env
 .env.local
@@ -98,11 +92,6 @@ temp/
 .DS_Store
 Thumbs.db
 
-# Foundry
-cache/
-out/
-broadcast/
-lib/
 
 # Hardhat
 artifacts/
@@ -126,24 +115,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 
 # PyInstaller
 *.manifest
