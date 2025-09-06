@@ -1,10 +1,10 @@
 "use client";
 
 import { useWriteContract } from "wagmi";
-import { oracleAdapterABI } from "@/lib/abi/oracle-adapter";
-import { domainFuturesABI } from "@/lib/abi/domain-futures";
+import { oracleAdapterABI } from "../lib/abi/oracle-adapter";
+import { domainFuturesABI } from "../lib/abi/domain-futures";
 import { FormEvent, useState } from "react";
-import { stringToBytes32 } from "@/lib/utils";
+import { stringToBytes32 } from "../lib/utils";
 import toast from 'react-hot-toast';
 import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useStore } from '@/lib/store';
+import { useStore } from '../lib/store';
 import {
   ChartBarIcon,
   ClockIcon,

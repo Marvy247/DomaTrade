@@ -1,8 +1,8 @@
 'use client';
 
-import { useStore } from "@/lib/store";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import { useStore } from "../lib/store";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useStore();

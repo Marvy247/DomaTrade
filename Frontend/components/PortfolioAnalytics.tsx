@@ -1,6 +1,6 @@
 'use client';
 
-import { useStore } from '@/lib/store';
+import { useStore } from '../lib/store';
 import { ChartBarIcon, ArrowTrendingUpIcon, ChartPieIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { marketsData, Market as MarketType, generateOrderbook } from '@/lib/mockData';
-import { useStore } from '@/lib/store';
+import { marketsData, Market as MarketType, generateOrderbook } from '../lib/mockData';
+import { useStore } from '../lib/store';
 import {
   ChartBarIcon,
   ArrowTrendingUpIcon,

@@ -2,12 +2,12 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import { domainFuturesABI } from '@/lib/abi/domain-futures';
+import { domainFuturesABI } from '../lib/abi/domain-futures';
 import toast from 'react-hot-toast';
 import { ChartBarIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import TradingChart from './TradingChart';
-import { marketsData, Market, generateOrderbook } from '@/lib/mockData';
-import { useStore } from '@/lib/store';
+import { marketsData, Market, generateOrderbook } from '../lib/mockData';
+import { useStore } from '../lib/store';
 
 const DOMAIN_FUTURES_ADDRESS = "0x2cb425975626593A35D570C6E0bCEe53fca1eaFE";
 

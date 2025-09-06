@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useStore } from '@/lib/store';
+import { useStore } from '../lib/store';
 import { XMarkIcon, PencilIcon, CheckIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 export default function PendingOrders() {

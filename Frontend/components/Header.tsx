@@ -5,7 +5,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useStore } from '@/lib/store';
+import { useStore } from '../lib/store';
 import {
   HomeIcon,
   ArrowTrendingUpIcon,
